@@ -1,0 +1,35 @@
+# ── Core pipeline (pinned per IMPLEMENTATION_CONTEXT.md §4) ──────────────────
+langgraph==1.0.9
+langchain
+langchain-openai
+langchain-community
+
+# ── Knowledge / RAG ─────────────────────────────────────────────────────────
+graphrag==3.0.2
+chromadb
+neo4j
+
+# ── NLP / NER ───────────────────────────────────────────────────────────────
+scispacy
+spacy
+# scispaCy model installed separately (large): see requirements-models.txt
+
+# ── ML / embeddings ─────────────────────────────────────────────────────────
+transformers
+torch
+accelerate
+sentence-transformers
+
+# ── Argumentation / data ────────────────────────────────────────────────────
+networkx
+pandas
+numpy
+scikit-learn
+
+# ── UI / tracking ───────────────────────────────────────────────────────────
+streamlit
+graphviz
+mlflow
+
+# ── LLM serving (local) ─────────────────────────────────────────────────────
+ollama

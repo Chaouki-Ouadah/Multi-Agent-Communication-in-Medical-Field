@@ -1,0 +1,66 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "medargue"
+version = "0.1.0"
+description = "Multi-agent argumentation system for explainable clinical decision support (MSc dissertation)."
+readme = "README.md"
+requires-python = ">=3.10,<3.13"
+license = { text = "MIT" }
+authors = [{ name = "Chaouki Ouadah", email = "Chaouki.Ouadah@louis-charles.com" }]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["src*"]
+
+# ── Ruff: lint + format ──────────────────────────────────────────────────────
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+src = ["src", "tests", "ui"]
+# Legacy dissertation-writing scripts at repo root are not part of the code project.
+extend-exclude = [
+    "audit_ppt.py", "build_pdf.py", "build_pdf_md.py", "build_video_ppt.py",
+    "check_pdf.py", "check_tables.py", "compare_docx.py", "create_mimic_pptx.py",
+    "data/data.py", "data/investigate.py",
+]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "SIM", "C4", "RUF"]
+ignore = ["E501"]  # line length handled by formatter
+
+[tool.ruff.lint.isort]
+known-first-party = ["src"]
+
+# ── mypy: type-check ─────────────────────────────────────────────────────────
+[tool.mypy]
+python_version = "3.12"
+warn_unused_configs = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+no_implicit_optional = true
+ignore_missing_imports = true   # heavy ML libs ship without stubs
+files = ["src"]
+
+# ── pytest ───────────────────────────────────────────────────────────────────
+[tool.pytest.ini_options]
+minversion = "7.0"
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = "-ra -q --strict-markers"
+markers = [
+    "slow: long-running tests (deselect with -m 'not slow')",
+    "e2e: end-to-end Streamlit/Playwright tests",
+    "llm: requires a live LLM (Ollama/OpenAI)",
+]
+
+[tool.coverage.run]
+source = ["src"]
+omit = ["*/__init__.py"]
+
+# ── bandit: security ─────────────────────────────────────────────────────────
+[tool.bandit]
+exclude_dirs = ["tests", "venv", ".venv", "experiments"]
+skips = ["B101"]  # assert_used — fine in research code/tests

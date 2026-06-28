@@ -1,0 +1,8 @@
+{
+    "chat.tools.terminal.autoApprove": {
+        "/^cd \"c:\\\\Projects\\\\Dissertation\"; python -c \"\nwith open\\('dissertation_build\\.tex','r',encoding='utf-8'\\) as f:\n    tex = f\\.read\\(\\)\n# Find Table 3\\.2  \nidx = tex\\.find\\('Functional requirements\\.'\\)\nt_start = tex\\.rfind\\('\\\\\\\\begin\\{table\\}\\[H\\]', 0, idx\\)\nblock = tex\\[t_start:t_start\\+600\\]\nfor i, l in enumerate\\(block\\.split\\('\\\\n'\\)\\[:20\\]\\):\n    print\\(f'\\{i\\+1\\}: \\{l\\[:140\\]\\}'\\)\n\"$/": {
+            "approve": true,
+            "matchCommandLine": true
+        }
+    }
+}

@@ -1,0 +1,4 @@
+# Normalize line endings — LF in repo, checked out native on Windows.
+* text=auto eol=lf
+*.png binary
+*.pdf binary

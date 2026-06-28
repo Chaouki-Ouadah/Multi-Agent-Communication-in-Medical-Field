@@ -1,0 +1,80 @@
+# ── Python ───────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.hypothesis/
+
+# ── Environments ──────────────────────────────────────────────────────────────
+venv/
+.venv/
+env/
+.env
+*.env
+!.env.example
+
+# ── Secrets / credentials ──────────────────────────────────────────────────────
+.secrets.baseline.local
+*.key
+*.pem
+credentials.json
+
+# ── Data (no real patient data; surrogate is regenerable) ──────────────────────
+data/surrogate/*
+data/mi_complications/*
+data/knowledge/*
+!data/**/.gitkeep
+!data/**/README.md
+
+# ── ML / experiment artifacts ──────────────────────────────────────────────────
+mlruns/
+*.ckpt
+*.pt
+*.bin
+chroma/
+*.duckdb
+neo4j/
+
+# ── Editor / OS ─────────────────────────────────────────────────────────────────
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+
+# ── Playwright ──────────────────────────────────────────────────────────────────
+test-results/
+playwright-report/
+
+# ── Dissertation writing artifacts (kept out of code repo) ─────────────────────
+*.aux
+*.log
+*.out
+*.toc
+*.pdf
+*.docx
+*.pptx
+*.zip
+*.tex
+*.png
+# Legacy dissertation-writing helper scripts (not part of the code project)
+audit_ppt.py
+build_pdf.py
+build_pdf_md.py
+build_video_ppt.py
+check_pdf.py
+check_tables.py
+compare_docx.py
+create_mimic_pptx.py
+data/data.py
+data/investigate.py
+data/dataset_fitness_report.md
+Research_Paper/
+Research_Paper.zip
+*.md.original.md

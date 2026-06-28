@@ -1,0 +1,3 @@
+# Large model downloads — installed separately (not on every CI run).
+# scispaCy clinical NER model (~1GB) per IMPLEMENTATION_CONTEXT.md §7.
+https://s3-us-west-2.amazonaws.com/ai2-s2-scispacy/releases/v0.5.4/en_core_sci_lg-0.5.4.tar.gz

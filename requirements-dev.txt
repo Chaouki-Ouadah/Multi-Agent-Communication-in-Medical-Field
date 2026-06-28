@@ -1,0 +1,26 @@
+# Development & CI tooling
+-r requirements.txt
+
+# Tests
+pytest
+pytest-cov
+pytest-mock
+hypothesis
+
+# E2E (Streamlit UI)
+playwright
+pytest-playwright
+
+# Lint / format / types
+ruff
+mypy
+pandas-stubs
+types-requests
+
+# Security
+bandit[toml]
+pip-audit
+detect-secrets
+
+# Hooks
+pre-commit
