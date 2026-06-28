@@ -42,6 +42,14 @@ chroma/
 *.duckdb
 neo4j/
 
+# ── Claude Code project config ──────────────────────────────────────────────────
+# Skills library (full Claudify, ~1744 files) — available locally, not committed.
+.claude/skills/
+# Runtime artifacts produced by hooks.
+.claude/logs/
+.claude/backups/
+# Tracked: .claude/{settings.json,agents,commands,hooks,memory.md,knowledge-base.md}
+
 # ── Editor / OS ─────────────────────────────────────────────────────────────────
 .idea/
 *.swp

@@ -1,0 +1,153 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Bash(grep:*)",
+      "Bash(find:*)",
+      "Bash(ls:*)",
+      "Bash(cat:*)",
+      "Bash(head:*)",
+      "Bash(tail:*)",
+      "Bash(wc:*)",
+      "Bash(which:*)",
+      "Bash(echo:*)",
+      "Bash(pwd:*)",
+      "Bash(date:*)",
+      "Bash(sort:*)",
+      "Bash(uniq:*)",
+      "Bash(diff:*)",
+      "Bash(dirname:*)",
+      "Bash(basename:*)",
+      "Bash(realpath:*)",
+      "Bash(file:*)",
+      "Bash(stat:*)",
+      "Bash(jq:*)",
+      "Bash(git status:*)",
+      "Bash(git log:*)",
+      "Bash(git diff:*)",
+      "Bash(git branch:*)",
+      "Bash(git show:*)",
+      "Bash(git rev-parse:*)",
+      "Bash(git remote:*)",
+      "Bash(git blame:*)",
+      "Bash(git stash list:*)",
+      "Bash(git tag:*)",
+      "Bash(python:*)",
+      "Bash(python -m:*)",
+      "Bash(pytest:*)",
+      "Bash(ruff:*)",
+      "Bash(mypy:*)",
+      "Bash(bandit:*)",
+      "Bash(pip-audit:*)",
+      "Bash(pip list:*)",
+      "Bash(pip show:*)",
+      "Bash(pip check:*)",
+      "Bash(conda run:*)",
+      "Bash(conda list:*)",
+      "Bash(conda env list:*)",
+      "Bash(pre-commit run:*)",
+      "Read",
+      "Edit",
+      "Write",
+      "Agent",
+      "Glob",
+      "Grep",
+      "mcp__context7__*",
+      "mcp__memory__*"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR/.claude/hooks/guard-bash.sh\"",
+            "statusMessage": "Checking command safety..."
+          }
+        ]
+      },
+      {
+        "matcher": "Write|Edit|NotebookEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR/.claude/hooks/backup-before-write.sh\"",
+            "async": true,
+            "statusMessage": "Backing up before write..."
+          },
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR/.claude/hooks/completeness-gate.sh\"",
+            "async": false,
+            "statusMessage": "Validating content completeness..."
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit|NotebookEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR/.claude/hooks/log-changes.sh\"",
+            "async": true,
+            "statusMessage": "Logging change..."
+          }
+        ]
+      }
+    ],
+    "PostToolUseFailure": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR/.claude/hooks/log-failures.sh\"",
+            "async": true,
+            "statusMessage": "Logging failure..."
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "matcher": "auto",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR/.claude/hooks/pre-compact-handoff.sh\"",
+            "timeout": 5,
+            "statusMessage": "Saving state before compaction..."
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "matcher": "user",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR/.claude/hooks/session-reset.sh\"",
+            "timeout": 3,
+            "statusMessage": "Resetting session state..."
+          }
+        ]
+      },
+      {
+        "matcher": "compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR/.claude/hooks/post-compact-resume.sh\"",
+            "timeout": 10,
+            "statusMessage": "Restoring context after compaction..."
+          }
+        ]
+      }
+    ]
+  }
+}
