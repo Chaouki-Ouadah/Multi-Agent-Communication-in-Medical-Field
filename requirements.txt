@@ -6,7 +6,8 @@ langchain-community
 langchain-ollama
 
 # ── Knowledge / RAG ─────────────────────────────────────────────────────────
-graphrag==3.0.2
+# graphrag deferred to Card 10: it pins numpy~=2.1, which conflicts with the scispaCy-driven
+# numpy<2 set (Card 5). Re-add (isolated / version-resolved) when GraphRAG lands.
 chromadb
 neo4j
 
