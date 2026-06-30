@@ -1,118 +1,48 @@
-# Implementation Plan — medargue Track 1 (Surrogate Data First)
+# Implementation Plan — medargue Track 1 (MIMIC multimodal, surrogate-data-first)
 
-> Derived from `IMPLEMENTATION_CONTEXT.md` §6 build order. Each step is RED → GREEN → REFACTOR.
-> One feature branch per step (`feature/<short>`), PR to `main`, tests green before merge.
-> This plan is the contract; re-read it per session instead of re-deriving from the spec.
+> Derived from `IMPLEMENTATION_CONTEXT.md` §6 (which derives from `Dissertation_Final_v6.pdf`).
+> Each step = RED → GREEN → REFACTOR, one `feature/` branch → one PR to `main`. Full card detail in
+> `docs/plans/cards.md`. This file is the at-a-glance TDD sequence.
 
 ## Context
-Build a multi-agent argumentation clinical-decision-support pipeline end-to-end on synthetic
-surrogate data that structurally mimics UCI #579 (MI Complications). Prove the whole pipeline,
-then swap the data loader for real data once MIMIC/UCI access is granted. No real patient data in
-this track. Research prototype — every model output labeled "not clinical advice".
+Build/validate the whole multi-agent argumentation pipeline on real open **surrogate** datasets
+(NIH ChestX-ray14 / OpenI / MIMIC-IV Demo) that mirror MIMIC's formats, then swap loaders for real
+MIMIC once PhysioNet+CITI credentialing lands. Three modality-partitioned agents (Vision / Report /
+Clinical) + Supervisor debate chest-pathology findings; Dung's AAF + Walton schemes resolve it.
 
-## State map (current vs spec)
-- Repo skeleton, env, CI/CD: DONE (foundation only, all `src/` are stubs).
-- `BaseDatasetLoader` interface: specified in §2; not yet coded.
-- Everything in §6 steps 2–12: not started (this plan).
+## State map
+- Workspace, env, CI/CD, Claude config: DONE. Spec realigned to dissertation v6 (this branch).
+- All `src/` modules are stubs. Steps 1–15 below are not started.
 
 ## Approach
-Strict TDD per step. Keep modules small and pure where possible (extract logic out of UI/agents
-into testable functions). Stub LLM and RAG behind interfaces so early steps run with zero external
-services. Determinism via `seed=42` everywhere randomness appears.
+Strict TDD. Pure, testable libs; LLM/VLM/embedding access behind mockable clients (no live model in
+unit tests; `@pytest.mark.llm` for live). Determinism via `seed=42`. Text-domain symbolic layer so
+argumentation is modality-agnostic.
 
 ## Out of scope (Track 1)
-- Real datasets (MIMIC/UCI) — deferred to §6.12 after credentialing.
-- GraphRAG/Neo4j may be stubbed with ChromaDB-only until §6.11.
-- GPT-4o baseline calls — only after local Ollama path works.
+Real MIMIC data (credentialing pending — Step 15). Heavy model weights downloaded only when their
+card runs. GPT-4o baseline only after the local path works.
 
----
+## Step sequence (TDD)
+1. **Loaders** (`feature/loaders`) — `BaseDatasetLoader` + `Case` + CheXpert-14 + 3 surrogate loaders.
+2. **Modality partitioner** (`feature/modality-partition`) — per-agent views; leakage tests.
+3. **Model clients** (`feature/model-clients`) — Meditron (Ollama), LLaVA-Med, BioViL; mockable.
+4. **Vision Agent** (`feature/agent-vision`) — BioViL → CLIP Image RAG → LLaVA-Med findings.
+5. **Report Agent** (`feature/agent-report`) — sections + scispaCy NER → Meditron.
+6. **Clinical Agent** (`feature/agent-clinical`) — EHR serialisation → Meditron.
+7. **Debate graph** (`feature/debate-graph`) — LangGraph state machine + Supervisor, ≤5 rounds.
+8. **AAF** (`feature/aaf`) — Dung's framework + preferred-extension resolver (toy-graph tests).
+9. **Explanation** (`feature/explanation`) — Walton 7 schemes + attacks + narrative + disclaimer.
+10. **GraphRAG** (`feature/graphrag`) — Microsoft GraphRAG + Neo4j KG; SRQ2 configs A/B/C.
+11. **Metrics** (`feature/eval`) — 6 dimensions (F1 macro/micro, AUROC, ECE, Cohen's κ).
+12. **Baselines/ablations** (`feature/baselines`) — B1–B5, A1–A7, paired Wilcoxon.
+13. **UI** (`feature/ui`) — Streamlit CXR + 3 modality panels + arg-tree + confidence; E2E.
+14. **Benchmark** (`feature/benchmark`) — model-selection harness (F1/latency/VRAM, MLflow).
+15. **Real MIMIC** (`feature/mimic`) — `MimicLoader` swap, post-credentialing.
 
-## Step plan (TDD tasks)
+## Verification (per step)
+`conda run -n medargue ruff check . && ruff format --check . && mypy && pytest -m "not slow and not llm and not e2e"` green before push. ≥1 live Playwright scenario at Step 13.
 
-### Step 2 — SurrogatePatientGenerator + SurrogateLoader  (`feature/surrogate`)
-- RED: `tests/test_surrogate.py`
-  - shape: N rows (default 1700), expected column count; binary/ordinal/continuous split.
-  - missingness: ~10–15% per column (tolerance band), seed-deterministic.
-  - labels: ground-truth target columns present; injected correlations hold statistically
-    (e.g. anterior MI ↑ AV-block rate vs base rate).
-  - reproducibility: same seed → identical frames.
-  - `SurrogateLoader.load()/feature_domains()/targets()/variable_dictionary()` satisfy
-    `BaseDatasetLoader` ABC.
-- GREEN: implement `src/data/surrogate.py` (generator) + `src/data/loaders.py`
-  (`BaseDatasetLoader` ABC + `SurrogateLoader`). Use Appendix A skeleton as starting point.
-- REFACTOR: extract correlation rules to a config dict; document domains.
-- Commit: `feat(data): surrogate generator + loader (Track 1)`
-
-### Step 3 — FeaturePartitioner  (`feature/partition`)
-- RED: `tests/test_partition.py` — 3 masks (history_risk / diagnostic / treatment) are
-  pairwise disjoint; union covers all non-target feature columns; supervisor sees all.
-- GREEN: `src/utils/feature_partitioner.py`.
-- Commit: `feat(utils): feature partitioner (3 disjoint domain masks)`
-
-### Step 4 — Vignette Generator  (`feature/vignette`)
-- RED: deterministic template decode — given a row, output contains the expected feature phrases;
-  no LLM in this step.
-- GREEN: `src/utils/vignette_generator.py` (templates only). LLM glue later behind a flag.
-- Commit: `feat(utils): template vignette generator`
-
-### Step 5 — History&Risk agent stub  (`feature/agent-history`)
-- RED: agent returns a structured argument object (claim + cited feature values + scheme tag)
-  from ONLY its partition; raises/ignores features it cannot see.
-- GREEN: `src/agents/history_risk.py` + a thin LLM client interface (mockable).
-- Commit: `feat(agents): history&risk agent (structured args)`
-
-### Step 6 — 3 agents in LangGraph  (`feature/debate-graph`)
-- RED: graph runs 3 agents with a MOCK convergence; `DebateState` accumulates arguments/attacks;
-  terminates deterministically.
-- GREEN: `src/pipeline/state.py` (Appendix C) + `src/pipeline/graph.py`.
-- Commit: `feat(pipeline): langgraph 3-agent debate (mock convergence)`
-
-### Step 7 — Dung's AAF resolver  (`feature/aaf`)
-- RED: `tests/test_argumentation.py` — preferred extensions on toy graphs (known answers):
-  empty attacks, single attack, even/odd cycles, defended sets.
-- GREEN: `src/argumentation/framework.py` + `src/argumentation/resolver.py`
-  (Appendix B preferred-extensions; consider NetworkX).
-- Commit: `feat(argumentation): dung AAF + preferred-extension resolver`
-
-### Step 8 — Explanation generator  (`feature/explanation`)
-- RED: given an extension + arg tree, output a narrative containing the winning claims +
-  the "not clinical advice" label.
-- GREEN: `src/argumentation/explanation.py` (+ schemes in `schemes.py`).
-- Commit: `feat(argumentation): explanation generator`
-
-### Step 9 — Evaluation metrics  (`feature/eval`)
-- RED: multi-label F1 (macro/micro), per-complication recall, calibration (ECE) on synthetic
-  predictions with known scores.
-- GREEN: `src/evaluation/metrics.py` (+ baselines/analysis scaffolds).
-- Commit: `feat(evaluation): multi-label metrics + ECE`
-
-### Step 10 — Streamlit UI  (`feature/ui`)  [E2E with Playwright]
-- RED: ≥1 live Playwright scenario (page.route stubs) — loads a case, shows recommendation +
-  arg-tree + confidence + disclaimer.
-- GREEN: `ui/app.py` (Graphviz arg-tree). Extract render logic to pure helpers for unit tests.
-- Commit: `feat(ui): streamlit arg-tree viz` + `test(ui): e2e scenario`
-
-### Step 11 — RAG  (`feature/rag`)
-- RED: retriever returns top-k chunks for a query from a seeded ChromaDB; per-agent context split.
-- GREEN: `src/knowledge/retriever.py` (ChromaDB) → later `graph_rag.py`/`neo4j_client.py`.
-- Commit: `feat(knowledge): chromadb retriever` (GraphRAG follows)
-
-### Step 12 — Swap loader → real data  (post-credentialing)
-- Implement `UCILoader`/`MIMICLoader` against the same ABC; no pipeline changes.
-
----
-
-## Verification matrix (AC → proof)
-- Each step's RED tests above are its acceptance proof.
-- Definition of Done (Appendix D): end-to-end surrogate run → 3 agents debate → AAF resolves →
-  explanation + arg tree in Streamlit → metrics logged in MLflow → all tests green → pushed.
-
-## Risks + rollback
-- Risk: heavy LLM/RAG deps slow tests → keep them behind mockable interfaces; mark `llm`/`slow`.
-- Risk: surrogate correlations too weak/strong for stable label tests → assert on rate bands, seed-fixed.
-- Rollback: each step is one branch/PR; revert the commit to undo.
-
-## Phase mapping (methodology 11-phase)
-- Phases 1 (schema) mostly N/A (no DB; surrogate is in-memory/CSV).
-- Phases 2–3 = agent/UI code; Phase 5 = unit tests (RED first); Phase 6 = E2E (step 10);
-  Phase 7 local CI gate every step; Phase 8 commit/PR per step.
+## Definition of Done (track)
+End-to-end surrogate run → 3 agents debate → AAF resolves → explanation + arg tree in Streamlit →
+6-dim metrics in MLflow → tests green → pushed. Then Step 15 swaps to real MIMIC.

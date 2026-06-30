@@ -1,4 +1,4 @@
-"""Dataset loaders: BaseDatasetLoader interface, SurrogateLoader (then MIMIC/UCI).
+"""Multimodal dataset access: Case dataclass + BaseDatasetLoader ABC (cases/labels/modalities/variable_dictionary). Surrogate loaders -> MIMIC later, same interface.
 
-Stub — no logic yet. Implement per IMPLEMENTATION_CONTEXT.md §2, §6.2 (TDD: write the failing test first).
+Stub — no logic yet. Implement per IMPLEMENTATION_CONTEXT.md §2, Card 1 (TDD: write the failing test first).
 """

@@ -1,8 +1,9 @@
-# ── Core pipeline (pinned per IMPLEMENTATION_CONTEXT.md §4) ──────────────────
-langgraph==1.0.9
+# ── Core pipeline (per IMPLEMENTATION_CONTEXT.md §5; dissertation v6) ─────────
+langgraph>=1.0          # v1.0+ state machine (dissertation p.39)
 langchain
 langchain-openai
 langchain-community
+langchain-ollama
 
 # ── Knowledge / RAG ─────────────────────────────────────────────────────────
 graphrag==3.0.2
@@ -14,11 +15,14 @@ scispacy
 spacy
 # scispaCy model installed separately (large): see requirements-models.txt
 
-# ── ML / embeddings ─────────────────────────────────────────────────────────
+# ── ML / vision-language / embeddings ───────────────────────────────────────
 transformers
 torch
 accelerate
+bitsandbytes            # 4-bit quantisation (LLaVA-Med / BioViL on 8 GB VRAM)
 sentence-transformers
+pillow                  # CXR image IO
+# LLaVA-Med 7B (VLM) + BioViL (image embeddings) pulled from HF during Card 3/4.
 
 # ── Argumentation / data ────────────────────────────────────────────────────
 networkx

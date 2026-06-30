@@ -1,270 +1,212 @@
 # IMPLEMENTATION CONTEXT — Multi-Agent Argumentation Clinical Decision Support
 
-> **This file is the single source of truth for implementing this project in this workspace.**
-> Read it fully before writing any code. It is written for an autonomous coding agent (Claude Code)
-> with no prior knowledge of the project. Everything needed to start building is here.
+> **Single source of truth for implementing this project. Derived from the authoritative dissertation
+> `Dessertation Doc/Dissertation_Final_v6.pdf` (page refs throughout).** Read it fully before coding.
+> Where this file and the dissertation diverge, the dissertation wins — reconcile and flag.
 
 ---
 
-## 0. TL;DR — What We Are Building Right Now
+## 0. TL;DR — What We Are Building
 
-We are building a **multi-agent argumentation system** for clinical decision support, where 3 LLM
-"specialist" agents each see a **different partition** of a patient's clinical features, debate the
-likely complications, and a **symbolic argumentation engine** (Dung's AAF) resolves the debate into
-an explainable recommendation.
+A **multi-agent argumentation system** for explainable clinical decision support on **chest imaging**.
+Three **modality-partitioned** LLM agents each see a *different clinical modality* of the same patient
+study, debate the likely chest pathologies, and a **symbolic argumentation engine** (Dung's AAF +
+Walton schemes) resolves the cross-modal debate into an explainable, calibrated recommendation.
 
-**START HERE → Track 1 (Surrogate Data First):** We do **NOT** have MIMIC access yet (PhysioNet +
-CITI credentialing is in progress). So we begin on **fully synthetic / surrogate clinical data** that
-mimics the structure of the real datasets. This lets us build, test, and validate the *entire
-pipeline end-to-end* with zero data-access risk. When MIMIC/UCI access is granted, we swap the data
-loader — nothing else changes.
+**START HERE → Track 1 (Surrogate Data First):** PhysioNet + CITI credentialing for the primary MIMIC
+data is pending. So we build and validate the entire pipeline NOW on **real, openly-available
+surrogate datasets that share MIMIC's formats** (no credentialing). When MIMIC access is granted, we
+swap the data loaders — nothing else changes.
 
 **Repository:** https://github.com/Chaouki-Ouadah/Multi-Agent-Communication-in-Medical-Field
-**Degree:** MSc AI/Data Science — Heriot-Watt University Dubai
-**Student:** Chaouki Ouadah
+**Degree:** MSc AI/Data Science — Heriot-Watt University Dubai · **Student:** Chaouki Ouadah ·
 **Supervisor:** Radu-Casian Mihailescu, Ph.D.
 
 ---
 
-## 1. Project Thesis & Research Questions
+## 1. Research Questions (dissertation pp.4–5)
 
 **Primary RQ:** How can multi-agent argumentation frameworks, augmented by LLMs and RAG, improve the
 explainability and trustworthiness of clinical decision support systems?
 
-| ID | Sub-Question | Components |
-|----|-------------|-----------|
-| SRQ1 | How can Walton's schemes integrate with LLM debate to produce clinical explanations? | Argumentation engine |
-| SRQ2 | How do different RAG approaches affect factual grounding of multi-agent reasoning? | Vector vs GraphRAG vs Hybrid |
-| SRQ3 | How do information-partitioned agents (history/diagnostics/treatment) affect outcomes? | Agent design |
-| SRQ4 | What metrics beyond accuracy (explainability, process, trust) work best? | Evaluation |
+| ID | Sub-Question | Targets |
+|----|-------------|---------|
+| SRQ1 | How can Walton's schemes integrate with LLM debate to produce clinically meaningful explanations? | symbolic layer |
+| SRQ2 | How do different RAG approaches affect factual grounding/consistency of multi-agent reasoning? | retrieval (Vector / Graph / Hybrid) |
+| SRQ3 | How do clinical data **modalities** (CXR image, report, structured EHR) as modality-partitioned agents affect outcomes? | agent architecture |
+| SRQ4 | What metrics beyond accuracy (explainability, process, trust) best assess argumentation-based CDSS? | evaluation |
 
-**The novel contribution:** First system to combine **KG-RAG + multi-agent argumentation + symbolic
-Dung's AAF resolution + information partitioning** with multi-dimensional evaluation (not just accuracy).
+**Novel contribution:** combining **CLIP image-RAG + KG-RAG + multi-agent argumentation + symbolic
+Dung's AAF resolution + modality partitioning**, with six-dimensional evaluation (the Multimodal
+Hybrid retrieval config, Run C, is the most novel — no published system combines all three).
 
 ---
 
-## 2. The Surrogate-Data-First Strategy (Track 1)
+## 2. The Surrogate-Data-First Strategy (Track 1)  (dissertation p.36)
 
 ### Why surrogate data
-- MIMIC credentialing (PhysioNet + CITI "Data or Specimens Only Research") is pending.
-- We must not block implementation on data access.
-- Surrogate data lets us prove the pipeline works, write tests, and demo to supervisor.
+MIMIC credentialing (PhysioNet + CITI "Data or Specimens Only Research") is pending; we must not block
+implementation. The dissertation's surrogates are **real, open datasets that mirror MIMIC's structure**
+— NOT synthetically generated data.
 
-### What "surrogate data" means here
-A `SurrogatePatientGenerator` produces synthetic tabular rows that **structurally match** the primary
-target dataset (Myocardial Infarction Complications, UCI #579): ~111 features across 17 clinical
-domains, 12 complication targets, realistic missingness, clinically plausible correlations.
+### Surrogate datasets (use now, no credentialing)
+| Modality | Surrogate (Track 1) | Real (Track 2, after credentialing) |
+|----------|---------------------|-------------------------------------|
+| CXR image | **NIH ChestX-ray14** (112,120 images, CC0) | MIMIC-CXR-JPG v2.1.0 |
+| Radiology report | **OpenI Indiana University** (7,470 CXR-report pairs) | MIMIC-IV-Note v2.2 |
+| Structured EHR | **MIMIC-IV Demo** (100 patients, open access) | MIMIC-IV v3.1 |
 
-### Design rule: dataset-agnostic loader
-All data flows through one interface: `BaseDatasetLoader`. We implement `SurrogateLoader` first.
-Later, `MIMICLoader` / `UCILoader` implement the same interface → **no pipeline changes** to swap.
+### Design rule: dataset-agnostic, multimodal loader
+All data flows through one interface `BaseDatasetLoader`. A **case** = `{image_path, report_text,
+ehr_record}` linked by `subject_id` / `study_id`, plus CheXpert labels. Surrogate loaders implement it
+first; `MIMICLoader` implements the same interface later → **no pipeline changes** to swap.
 
 ```python
 class BaseDatasetLoader(ABC):
     @abstractmethod
-    def load(self) -> pd.DataFrame: ...
+    def cases(self) -> Iterable[Case]: ...          # multimodal case stream
     @abstractmethod
-    def feature_domains(self) -> dict[str, list[str]]: ...   # domain -> [columns]
+    def labels(self) -> list[str]: ...              # CheXpert-14 label set
     @abstractmethod
-    def targets(self) -> list[str]: ...
+    def modalities(self) -> dict[str, str]: ...     # modality -> source description
     @abstractmethod
-    def variable_dictionary(self) -> dict[str, dict]: ...     # code -> human meaning
+    def variable_dictionary(self) -> dict[str, dict]: ...  # EHR code -> human meaning + ref range
 ```
-
-### Surrogate generator requirements
-- Configurable N patients (default 1,700).
-- 78 binary, 22 ordinal, 11 continuous features (match real shape).
-- Inject correlations (e.g., anterior MI ↑ AV-block risk; prior HF ↑ ZSN).
-- Inject ~10–15% missingness per column.
-- Deterministic via seed for reproducible tests.
-- Output ground-truth complication labels so evaluation works.
 
 ---
 
-## 3. System Architecture (Data Flow)
+## 3. System Architecture (Data Flow)  (dissertation pp.26–27, 39–44)
 
 ```
-Tabular patient row (surrogate now, MIMIC later)
-   → Clinical Vignette Generator (templates + LLM glue)   tabular → clinical English
-   → Feature Partitioner (split 111 feats → 3 domain masks)
-   → scispaCy NER (entities)
-   → KG Retrieval (Vector/GraphRAG/Hybrid, per-agent context)
-   → 3 LLM Agents debate (History&Risk / Diagnostic / Treatment) [LangGraph]
-   → Symbolic Resolution (Dung's AAF + Walton schemes)
-   → Explanation Generator (LLM + arg tree → narrative)
-   → OUTPUT: recommendation + explanation + arg tree + confidence
+Multimodal patient study (linked by subject_id / study_id)
+   ├─ CXR image  → Vision Agent:   BioViL embed → CLIP Image RAG (ChromaDB) → LLaVA-Med 7B VQA → findings
+   ├─ report     → Report Agent:   section extract (Findings/Impression) + scispaCy NER → Meditron-8B → findings
+   └─ EHR        → Clinical Agent: prompt serialisation (ref ranges, ↑/↓/✓) → Meditron-8B → findings
+        → all agents emit TEXT arguments (Walton-scheme labelled)
+        → Supervisor (Meditron-8B): sees only the text arguments, detects cross-modal conflict, mediates
+        → Multi-round debate [LangGraph state machine, ≤5 rounds, converge when no new attacks]
+        → Symbolic resolution: Dung's AAF ⟨A,R⟩ → preferred extension (winning arguments)
+        → Explanation generator: narrative + argumentation tree + calibrated confidence
+   → OUTPUT: pathology recommendation + explanation + arg tree + confidence
 ```
 
-### The 3 agents + supervisor
-| Agent | Sees (~feat) | Role |
-|-------|--------------|------|
-| History & Risk | demographics, prior MI, comorbidities, vitals (~37) | "Who is this patient?" |
-| Diagnostic | ECG, MI location, labs, admission status (~46) | "What's happening now?" |
-| Treatment & Progression | meds, fibrinolytics, pain/opioid trends (~28) | "What was done, how responding?" |
-| Supervisor | all 111 | moderator, convergence, gap detection |
+### The 3 agents + supervisor (dissertation pp.36–38, Table 4.2)
+| Agent | Sees | Cannot see | Model | Processing |
+|-------|------|-----------|-------|-----------|
+| **Vision** | CXR image only | report, EHR | LLaVA-Med 7B (4-bit) | BioViL embed → CLIP Image RAG → VQA |
+| **Report** | report text only | image, EHR | Meditron-8B (4-bit) | Findings/Impression extract + scispaCy NER |
+| **Clinical** | structured EHR only | image, report | Meditron-8B (4-bit) | serialise labs/vitals + reference ranges + ↑/↓/✓ |
+| **Supervisor** | all agents' text args | raw data | Meditron-8B (4-bit) | mediate, detect conflict, convergence (≤5 rounds) |
 
-Information partitioning (not tone/attitude prompts) is the independent variable — agents disagree
-because they hold different data, mirroring a real Multidisciplinary Team.
+**OIDP (One Issue, Different Perspectives):** modality partitioning creates genuine information
+asymmetry that drives meaningful argumentation — agents disagree because they hold different modalities,
+NOT because of tone/attitude prompts. All agents emit **text** arguments → the symbolic layer is
+modality-agnostic and extensible (add a modality = add an agent, no symbolic-layer change).
 
 ---
 
-## 4. Tech Stack (pinned)
+## 4. Argumentation Engine  (dissertation pp.41–43)
+
+- **Dung's AAF** ⟨A, R⟩: A = arguments, R ⊆ A×A = attacks. Compute **preferred extensions** (maximal
+  admissible sets) → the winning arguments that survive cross-modal debate → formal justification.
+- **Walton's schemes** — 7 clinically-relevant (Expert Opinion, Evidence→Hypothesis, Analogy,
+  Cause→Effect, Consequences, Established Rule, Sign). Agents label each argument with its scheme;
+  the Supervisor weights by scheme during mediation; labels drive explainability (the arg tree shows
+  *why* each argument was made).
+- Attack example: Vision "Pneumonia likely" vs Clinical "Normal WBC → pneumonia unlikely" → register
+  an attack; preferred extension decides the survivor.
+
+---
+
+## 5. Tech Stack (dissertation pp.38–44)
 
 | Layer | Tool | Notes |
-|-------|------|-------|
-| Orchestration | LangGraph 1.0.9 | graph state machine, debate rounds |
-| KG-RAG | Microsoft GraphRAG 3.0.2 + Neo4j 5.x | + ChromaDB vector store |
-| LLM primary | Llama-3-Meditron-8B via Ollama | local, free |
-| LLM baseline | GPT-4o (API) | comparison only |
-| Embeddings | BGE-large-en-v1.5 | |
-| NER | scispaCy en_core_sci_lg | |
-| Argumentation | NetworkX (custom Dung's AAF) | |
-| UI | Streamlit + Graphviz | arg tree viz |
+|-------|------|------|
+| Orchestration | LangGraph v1.0+ | debate state machine, ≤5 rounds |
+| Text LLM | **Meditron-8B** (4-bit, Ollama) | Report / Clinical / Supervisor; baseline Llama-3.1-8B |
+| VLM | **LLaVA-Med 7B** (4-bit) | Vision Agent VQA |
+| Image embeddings | **BioViL** | CXR-specific; CLIP Image RAG |
+| NER | scispaCy `en_core_sci_lg` | report findings |
+| Vector store | ChromaDB | CLIP Image RAG + text vector RAG |
+| Graph RAG | Microsoft GraphRAG + Neo4j | UMLS / SNOMED-CT / ICD-10 / PrimeKG + guidelines |
+| Argumentation | NetworkX (custom Dung's AAF) | preferred extensions |
+| Baseline (API) | GPT-4o | B1 only |
+| UI | Streamlit + Graphviz | arg-tree + CXR + modality panels |
 | Tracking | MLflow | experiments |
-| Python | >= 3.10 | venv |
-
-For Track 1 you may stub Neo4j/GraphRAG with ChromaDB-only RAG to move fast; keep the interface ready.
+| Hardware | RTX 5070, 8 GB VRAM | 4-bit, models loaded sequentially |
 
 ---
 
-## 5. Directory Structure (create this)
+## 6. Build Order (Track 1, TDD — write test first each step)
 
-```
-Dissertation - Copy/
-├── IMPLEMENTATION_CONTEXT.md   ← this file
-├── README.md
-├── requirements.txt
-├── pyproject.toml
-├── .env.example                # OPENAI_API_KEY etc.
-├── data/
-│   ├── surrogate/              # generated synthetic patients
-│   ├── mi_complications/       # later (UCI #579)
-│   └── knowledge/              # guideline PDFs for RAG
-├── src/
-│   ├── data/loaders.py         # BaseDatasetLoader, SurrogateLoader
-│   ├── data/surrogate.py       # SurrogatePatientGenerator
-│   ├── agents/{history_risk,diagnostic,treatment,supervisor}.py
-│   ├── argumentation/{framework,schemes,resolver,explanation}.py
-│   ├── knowledge/{retriever,graph_rag,neo4j_client}.py
-│   ├── pipeline/{graph,state,runner}.py
-│   ├── evaluation/{metrics,baselines,analysis}.py
-│   └── utils/{vignette_generator,feature_partitioner,prompts}.py
-├── ui/app.py
-├── experiments/{configs,results}
-└── tests/{test_surrogate,test_partition,test_argumentation,test_pipeline}.py
-```
+See `docs/plans/cards.md` for full card detail (goal/scope/files/tests/AC). Summary order:
+1. Multimodal `BaseDatasetLoader` + surrogate loaders (NIH CXR14 / OpenI / MIMIC-IV Demo) + CheXpert-14.
+2. Modality partitioner + `Case` object (image/report/EHR views) — partition integrity.
+3. Model clients: Ollama Meditron `llm_client`, LLaVA-Med `vlm_client`, BioViL `embeddings` (mockable).
+4. Vision Agent (BioViL → CLIP Image RAG → LLaVA-Med).
+5. Report Agent (section extract + scispaCy NER → Meditron).
+6. Clinical Agent (EHR serialisation → Meditron).
+7. LangGraph debate + Supervisor + ≤5-round convergence (mock agents).
+8. Dung's AAF + preferred-extension resolver.
+9. Walton 7 schemes + attack formation + explanation generator.
+10. GraphRAG + Neo4j KG; SRQ2 retrieval configs A/B/C.
+11. Evaluation: 6-dim metrics (F1 macro/micro, AUROC, ECE, Cohen's κ).
+12. Baselines B1–B5 + ablations A1–A7 + paired Wilcoxon.
+13. Streamlit UI (CXR + 3 modality panels + arg tree + confidence + disclaimer).
+14. Model-selection benchmark harness.
+15. Swap loaders → real MIMIC (after credentialing).
 
----
-
-## 6. Build Order (TDD — write test first each step)
-
-1. **Repo skeleton + venv + requirements** (`git init`, push to remote).
-2. **SurrogatePatientGenerator** + `SurrogateLoader` → test shape, missingness, labels.
-3. **FeaturePartitioner** → test 3 masks are disjoint and cover domains.
-4. **Vignette Generator** (templates only first, LLM glue later) → test deterministic decode.
-5. **One agent (History&Risk)** stub → returns structured args from its partition.
-6. **3 agents in LangGraph** with mock convergence.
-7. **Dung's AAF resolver** (NetworkX) → test preferred extensions on toy graph.
-8. **Explanation generator**.
-9. **Evaluation metrics** (multi-label F1, recall, explainability) on surrogate.
-10. **Streamlit UI** arg-tree viz.
-11. **RAG** (ChromaDB) then GraphRAG/Neo4j.
-12. **Swap loader → real data** once MIMIC/UCI access granted.
-
-Each step: RED (failing test) → GREEN (impl) → REFACTOR. Keep modules small.
+Each step: RED (failing test) → GREEN (impl) → REFACTOR. Modules small; LLM/VLM access mockable.
 
 ---
 
 ## 7. Setup Commands
 
 ```powershell
-cd "C:\Projects\Dissertation - Copy"
-python -m venv venv ; .\venv\Scripts\Activate.ps1
-pip install -U langgraph langchain langchain-openai langchain-community
-pip install graphrag chromadb neo4j scispacy networkx streamlit mlflow pandas numpy pytest
-pip install transformers torch accelerate
-pip install https://s3-us-west-2.amazonaws.com/ai2-s2-scispacy/releases/v0.5.4/en_core_sci_lg-0.5.4.tar.gz
-git init ; git remote add origin https://github.com/Chaouki-Ouadah/Multi-Agent-Communication-in-Medical-Field
+conda activate medargue                 # Python 3.12
+pip install -r requirements-dev.txt      # core + dev tooling
+python -m playwright install chromium     # E2E
+# Local models via Ollama: meditron (installed), llama3.1:8b; LLaVA-Med + BioViL via HF (data/model cards)
+ollama list
+cp .env.example .env                     # fill keys / paths
 ```
 
 ---
 
-## 8. Evaluation (start on surrogate, repeat on real)
-Dimensions: (1) Clinical outcome — multi-label F1 macro/micro, per-complication recall; (2) Explainability;
-(3) Process transparency — debate depth, attack rate; (4) Trust — calibration (ECE); (5) Robustness;
-(6) Information fusion — cross-domain discovery. Baselines B1–B5, ablations A1–A5 (see roadmap).
+## 8. Evaluation — Six Dimensions (dissertation pp.45–48)
+1. **Clinical outcome** — multi-label F1 (macro/micro over 14 CheXpert labels), per-pathology AUROC.
+2. **Explainability** — completeness, argumentation coverage, faithfulness (BLEU/ROUGE-L vs reference).
+3. **Process transparency** — debate depth, attack rate, convergence quality, traceability.
+4. **Trust** — Expected Calibration Error (ECE), uncertainty indication.
+5. **Robustness** — evidence dropout (10/20/30%), paraphrase consistency.
+6. **Cross-modal agreement** — discovery rate, unique-evidence contribution, Cohen's κ (Vision↔Report).
+
+**Baselines B1–B5** (additive): B1 single LLM zero-shot (GPT-4o); B2 single LLM + vector RAG; B3
+multi-agent no-argumentation; B4 existing system; B5 full system. **Ablations A1–A7**: no image RAG,
+no symbolic layer, no modality partitioning, single agent, general LLM (Llama-3.1), no Vision, no
+Clinical. Test set 400–600 MIMIC studies (stratified); paired Wilcoxon; qualitative 20-case study.
 
 ---
 
-## 9. Datasets (later, after credentialing)
-- Primary: UCI #579 MI Complications (CC-BY 4.0) — surrogate mimics this.
-- Secondary: CKD (UCI #336), Heart Failure (UCI #519).
-- MIMIC-IV / IV-Note / CXR-JPG after PhysioNet + CITI approval.
+## 9. Datasets (focus = 5 of 14 CheXpert labels)
+- **CheXpert 14 labels**; focus 5: Cardiomegaly, Pleural Effusion, Pneumonia, Pneumothorax, Atelectasis.
+- Track 1 surrogates: NIH ChestX-ray14, OpenI Indiana, MIMIC-IV Demo (all open).
+- Track 2 primary: MIMIC-CXR-JPG / MIMIC-IV-Note / MIMIC-IV (PhysioNet + CITI).
+
+---
 
 ## 10. Guardrails
-- Research prototype only, not clinical advice (label all outputs).
-- No real patient data in surrogate track. Pin versions. Keep loader interface stable.
-- Commit often, small PRs, tests must pass before merge.
+- Research prototype only, **not clinical advice** — label every model output.
+- **No credentialed/real patient data** until PhysioNet + CITI + HW ethics approved; never commit PHI.
+  Track-1 surrogates are open-licensed.
+- Pin versions. Keep `BaseDatasetLoader` interface stable. Commit often, small PRs, tests green, one
+  card = one PR.
 
 ---
 
-## Appendix A: Surrogate Generator Skeleton
-
-```python
-# src/data/surrogate.py
-import numpy as np, pandas as pd
-
-DOMAINS = {
-    "history_risk": ["AGE","SEX","INF_ANAM","STENOK_AN","FK_STENOK","GB","SIM_GIPERT","ZSN_A"],
-    "diagnostic":   ["S_AD_ORIT","D_AD_ORIT","K_BLOOD","Na_BLOOD","ALT_BLOOD","AST_BLOOD",
-                      "L_BLOOD","ROE","ant_im","lat_im","inf_im","post_im","ritm_ecg"],
-    "treatment":    ["FIBR_TER","NA_R_1_n","NOT_NA_1_n","TRENT","NITR_S","B_BLOK","ASP","TIKL"],
-}
-TARGETS = ["FIBR_PREDS","PREDS_TAH","JELUD_TAH","FIBR_JELUD","A_V_BLOK","OTEK_LANC",
-           "RAZRIV","DRESSLER","ZSN","REC_IM","P_IM_STEN","LET_IS"]
-
-def generate(n=1700, missing=0.12, seed=42):
-    rng = np.random.default_rng(seed)
-    cols = sum(DOMAINS.values(), [])
-    X = pd.DataFrame(rng.integers(0,3,size=(n,len(cols))), columns=cols)
-    X["AGE"] = rng.integers(40,90,n); X["SEX"] = rng.integers(0,2,n)
-    # correlations: anterior MI -> AV block; prior HF -> heart failure
-    y = pd.DataFrame(0,index=X.index,columns=TARGETS)
-    y["A_V_BLOK"] = (X["ant_im"]>1).astype(int) & (rng.random(n)<0.3)
-    y["ZSN"]      = (X["ZSN_A"]>0).astype(int) | (rng.random(n)<0.2)
-    mask = rng.random(X.shape)<missing; X = X.mask(mask)
-    return X, y
-```
-
-## Appendix B: Dung's AAF Resolver
-
-```python
-# src/argumentation/resolver.py
-import itertools
-def preferred_extensions(args:set, attacks:set):
-    def conflict_free(s): return not any(a in s and b in s for a,b in attacks)
-    def defends(s,a): return all(any((d,att) in attacks for d in s)
-                                 for att in args if (att,a) in attacks)
-    admissible=[set(c) for k in range(len(args)+1)
-                for c in itertools.combinations(args,k)
-                if conflict_free(set(c)) and all(defends(set(c),a) for a in c)]
-    return [s for s in admissible if not any(s<t for t in admissible)]
-```
-
-## Appendix C: LangGraph State + Agent Prompt Skeleton
-
-```python
-class DebateState(TypedDict):
-    patient_case: dict; partitions: dict; kg: dict
-    arguments: Annotated[list, operator.add]; attacks: list
-    round: int; converged: bool; extension: list; explanation: str
-```
-
-Agent prompt = role + VISIBLE partition + CANNOT-SEE list + "use Walton schemes, cite feature
-values, challenge conflicting claims, flag missing data." Three roles: History&Risk, Diagnostic,
-Treatment&Progression. Full templates are in the roadmap's Appendix B — copy verbatim.
-
-## Appendix D: Definition of Done (Track 1)
-End-to-end run on surrogate data → 3 agents debate → AAF resolves → explanation + arg tree shown in
-Streamlit → metrics logged in MLflow → all tests green → pushed to GitHub. Then swap loader for real data.
-```
+## 11. Open implementation decisions (dissertation leaves these to the build — resolve per card, flag)
+- Attack threshold: logical negation vs probabilistic disagreement.
+- Convergence: argument-set equality vs stable attack relations.
+- Confidence source: model softmax vs textual statement vs AAF voting.
+- Agent ordering within a round; Walton labelling during vs post generation.
+- GraphRAG corpus: external-only (guidelines + ontologies) vs +de-identified MIMIC text (leakage risk).
