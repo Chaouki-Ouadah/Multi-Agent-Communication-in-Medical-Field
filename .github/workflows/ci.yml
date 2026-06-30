@@ -69,7 +69,7 @@ jobs:
       - run: pip install -r requirements-dev.txt
       - name: pytest (unit + integration)
         run: pytest -m "not slow and not llm and not e2e" --cov=src --cov-report=xml --cov-report=term-missing
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with: { name: coverage, path: coverage.xml, if-no-files-found: ignore }
 
