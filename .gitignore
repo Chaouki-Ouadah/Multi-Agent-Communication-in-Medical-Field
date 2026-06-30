@@ -44,7 +44,9 @@ neo4j/
 
 # ── Claude Code project config ──────────────────────────────────────────────────
 # Skills library (full Claudify, ~1744 files) — available locally, not committed.
-.claude/skills/
+# Exception: project-specific skills (mp-card) ARE tracked.
+.claude/skills/*
+!.claude/skills/mp-card/
 # Runtime artifacts produced by hooks.
 .claude/logs/
 .claude/backups/

@@ -1,12 +1,10 @@
 name: Security
 
 on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
+  # Per-PR security runs in ci.yml's "Quality Gate" job; this is the deeper weekly sweep.
   schedule:
     - cron: "0 6 * * 1"   # weekly Monday 06:00 UTC
+  workflow_dispatch: {}
 
 permissions:
   contents: read
