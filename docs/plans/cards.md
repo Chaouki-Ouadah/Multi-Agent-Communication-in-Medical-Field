@@ -19,7 +19,8 @@
 | 7 | LangGraph debate + Supervisor (≤5 rounds) | feature | 4,5,6 | ⬜ |
 | 8 | Dung's AAF + preferred-extension resolver | feature | — | ⬜ |
 | 9 | Walton 7 schemes + attacks + explanation | feature | 7,8 | ⬜ |
-| 10 | GraphRAG + Neo4j KG; SRQ2 configs A/B/C | feature | 4,5,6 | ⬜ |
+| 10a | Retriever interface + Vector RAG (config A) + hybrid fusion | feature | 4 | ⬜ |
+| 10b | GraphRAG (MS, isolated venv) + Neo4j KG (PrimeKG) — configs B/C live | feature | 10a + infra | ⬜ infra-gated |
 | 11 | Evaluation metrics (6 dimensions) | feature | 1 | ⬜ |
 | 12 | Baselines B1–B5 + ablations A1–A7 | feature | 7,9,11 | ⬜ |
 | 13 | Streamlit UI (CXR + modality panels + arg tree) | feature | 9 | ⬜ |
@@ -138,15 +139,28 @@ green → pushed. Then swap loaders for real MIMIC.
 - **AC:** [ ] 7 schemes; [ ] attacks formed correctly; [ ] disclaimer on every explanation.
 - **Open decisions:** attack threshold (negation vs probabilistic) — flag.
 
-## Card 10 — GraphRAG + Neo4j KG (SRQ2)
-- **Branch:** `feature/graphrag`
-- **Scope:** `graph_rag.py` (Microsoft GraphRAG local+global), `neo4j_client.py`, `kg_schema.py`
-  (UMLS/SNOMED-CT/ICD-10/PrimeKG + guideline indexing); retriever interface supports configs
-  A (vector), B (graph), C (hybrid). Neo4j optional (skip-marked if no server).
-- **Files:** `src/knowledge/graph_rag.py`, `src/knowledge/neo4j_client.py`,
-  `src/knowledge/kg_schema.py`, `tests/test_rag.py`.
-- **AC:** [ ] all retrievers share one interface; [ ] A/B/C selectable; [ ] hybrid combines image+text+graph.
-- **Open decisions:** GraphRAG corpus (external-only vs +MIMIC text leakage) — flag.
+## Card 10 — GraphRAG + Neo4j KG (SRQ2) — SPLIT into 10a + 10b (2026-07-01)
+
+### Card 10a — Retriever interface + Vector RAG (config A) + hybrid fusion
+- **Branch:** `feature/retrieval-interface`
+- **Scope:** one unified `Retriever` interface; `RetrievalConfig` A/B/C selectable; real **Vector RAG**
+  (config A, ChromaDB text); **hybrid fusion** (config C, graph-ready); adapter wrapping the Card-4
+  `ClipImageRetriever`. Config B raises `NotImplementedError("Card 10b")`. No Docker/infra/LLM.
+- **Files:** `src/knowledge/retrieval.py`, `tests/test_rag.py`.
+- **AC:** [ ] all retrievers share one interface; [ ] A/B/C selectable; [ ] hybrid combines
+  image+text+graph (graph via mock until 10b).
+- **Corpus decision (resolved):** external-only — public ontologies + guidelines/PubMed; no MIMIC text
+  (no leakage). Faithful per dissertation §4.5.2/4.5.4.
+
+### Card 10b — GraphRAG (MS, isolated venv) + Neo4j KG (PrimeKG) — configs B/C live [infra-gated]
+- **Branch:** `feature/graphrag` (later)
+- **Scope:** Microsoft GraphRAG (local+global) in an **isolated venv** (numpy~=2.1 clash); `neo4j_client.py`;
+  `kg_schema.py` ingest **PrimeKG** (Harvard/MIT, open) + ICD-10 + guidelines into Neo4j; wire configs
+  B (graph) + C (hybrid) live. Neo4j skip-marked when no server.
+- **Files:** `src/knowledge/graph_rag.py`, `src/knowledge/neo4j_client.py`, `src/knowledge/kg_schema.py`,
+  tests.
+- **Infra:** Neo4j Docker container `neo4j-medargue` already staged + driver-verified (2026-07-01).
+  KG source = **PrimeKG** (open; UMLS/SNOMED licensing avoided — possible later top-up, ~1–3 days UMLS).
 
 ## Card 11 — Evaluation metrics (6 dimensions)
 - **Branch:** `feature/eval`
