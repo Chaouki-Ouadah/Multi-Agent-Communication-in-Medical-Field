@@ -17,7 +17,16 @@ ISOLATION RULE: graphrag lives ONLY in `.venv-graphrag` (numpy 2.5), invoked by 
 medargue (numpy 1.26.4) or requirements.txt. requirements-graphrag.txt = venv-only.
 Still pure-module pattern: AAF/resolver/explanation + retrievers NOT yet wired into pipeline/graph.py
 (DebateState.extension/explanation empty) — a future wiring card.
-Next: **Card 11 — evaluation metrics (6 dimensions; dissertation Table 4.5)**.
+**Card 11 DONE (#19):** `evaluation/metrics.py` — 6-dim metrics (numpy-only, no sklearn): f1_macro/micro,
+per_pathology_auroc (rank/tie-aware), expected_calibration_error, cohen_kappa (Vision-vs-Report),
+rouge_l, explanation_completeness, argumentation_coverage, cooccurrence_accuracy,
+cross_modal_discovery_rate, unique_evidence_contribution, + DebateState process-transparency
+(debate_depth/attack_rate/convergence_quality/argument_traceability). `METRIC_REGISTRY` for Card 12.
+DEFERRED to Card 12: D5 robustness (dropout/paraphrase runs) + BLEU + LLM-faithfulness.
+Next: **Card 12 — baselines B1–B5 + ablations A1–A7** (§4.6.3/4.6.4) — HEAVY. Wires metrics + retrieval
++ debate into an eval harness over surrogate cases; also FIRST card that may need AAF/resolver/
+explanation/retrievers wired into pipeline/graph.py (currently pure modules, DebateState.extension/
+explanation still empty). B1=GPT-4o (API, needs OPENAI key), B5=full system. Wilcoxon signed-rank.
 Decisions locked: per-modality Cases; CheXpert policy configurable; OIDP frozen views; clients real
 (no mocks); LLaVA-Med 4-bit via Ollama `rohithbojja/llava-med-v1.5`; BioViL via hi-ml-multimodal;
 CLIP Image RAG = BioViL→ChromaDB (per-instance collection); shared `Argument` in
