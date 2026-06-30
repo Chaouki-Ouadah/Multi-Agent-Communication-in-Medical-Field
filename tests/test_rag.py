@@ -66,8 +66,9 @@ def test_build_retriever_vector_and_hybrid() -> None:
     assert isinstance(built_c, HybridRetriever)
 
 
-def test_build_retriever_graph_not_yet() -> None:
-    with pytest.raises(NotImplementedError, match="10b"):
+def test_build_retriever_graph_requires_graph_retriever() -> None:
+    # config B (GraphRAG) is implemented in Card 10b; build needs a graph_retriever injected
+    with pytest.raises(ValueError, match="graph"):
         build_retriever(RetrievalConfig.GRAPH)
 
 

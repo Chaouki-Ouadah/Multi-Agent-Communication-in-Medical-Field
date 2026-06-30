@@ -1,0 +1,4 @@
+# Microsoft GraphRAG — installed ONLY into the isolated .venv-graphrag (NOT the core medargue env).
+# GraphRAG pins numpy~=2.1, which conflicts with the medargue scispaCy/numpy<2 stack, so it is kept
+# in its own venv and invoked by subprocess (see src/knowledge/graph_rag.py + docs/graphrag-neo4j-setup.md).
+graphrag==3.1.0

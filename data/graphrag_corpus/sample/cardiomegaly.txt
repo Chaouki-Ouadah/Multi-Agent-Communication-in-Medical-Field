@@ -1,0 +1,13 @@
+Cardiomegaly and Heart Failure — Clinical Notes (sample, open text)
+
+Cardiomegaly denotes an enlarged cardiac silhouette on the chest radiograph, commonly quantified by a
+cardiothoracic ratio greater than 0.5 on a posteroanterior film. It is frequently associated with
+congestive heart failure. Elevated B-type natriuretic peptide (BNP) supports a cardiac cause of
+dyspnoea and pulmonary oedema. Loop diuretics such as furosemide are first-line for fluid overload in
+decompensated heart failure. Pleural effusions, often bilateral, accompany cardiac decompensation and
+may be seen together with cardiomegaly and pulmonary vascular congestion on imaging.
+
+Differential considerations for an enlarged cardiac silhouette include true chamber enlargement,
+pericardial effusion, and technical factors such as a low-volume or anteroposterior projection. Normal
+BNP makes a primary cardiac cause of acute dyspnoea less likely and shifts the differential toward
+pulmonary or infective processes.

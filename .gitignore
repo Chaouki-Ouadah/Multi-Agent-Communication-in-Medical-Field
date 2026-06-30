@@ -93,3 +93,9 @@ data/dataset_fitness_report.md
 Research_Paper/
 Research_Paper.zip
 *.md.original.md
+
+# Isolated Microsoft GraphRAG venv (numpy~=2.1, kept out of the core env)
+.venv-graphrag/
+
+# GraphRAG workspace (indexed artifacts, local-only)
+.graphrag/
