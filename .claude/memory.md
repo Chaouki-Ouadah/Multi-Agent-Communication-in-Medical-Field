@@ -4,8 +4,10 @@
 > Durable facts live in the auto-memory store; this file is the active-work scratch.
 
 ## Now
-Merged: Cards 1–5 (#8 loaders, #9 partitioner, #10 clients, #11 Vision, **#12 Report Agent**).
-Next: **Card 6 — Clinical Agent (EHR serialisation + Meditron)**.
+Merged: Cards 1–6 (#8 loaders, #9 partitioner, #10 clients, #11 Vision, #12 Report, **#13 Clinical**).
+All 3 modality agents done (Vision/Report/Clinical, real + GPU-verified). 2-agent live demo ran OK.
+Next: **Card 7 — LangGraph debate + Supervisor (≤5 rounds)** — also folds in the Report/Clinical
+prompt-echo output-parse fix (Meditron echoes prompt → junk Sign args; see cards.md Card 7).
 Decisions locked: per-modality Cases; CheXpert policy configurable; OIDP frozen views; clients real
 (no mocks); LLaVA-Med 4-bit via Ollama `rohithbojja/llava-med-v1.5`; BioViL via hi-ml-multimodal;
 CLIP Image RAG = BioViL→ChromaDB (per-instance collection); shared `Argument` in

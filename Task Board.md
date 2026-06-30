@@ -4,14 +4,13 @@
 > Full card detail: `docs/plans/cards.md`.
 
 ## Today
-- Card 6 — Clinical Agent (EHR serialisation + Meditron)
+- Card 7 — LangGraph debate + Supervisor (≤5 rounds) [+ folds in Report/Clinical parse fix]
 
 ## This Week
-- Card 7 — LangGraph debate + Supervisor (≤5 rounds)
 - Card 8 — Dung's AAF + preferred-extension resolver
+- Card 9 — Walton 7 schemes + attacks + explanation
 
 ## Backlog (build order — docs/plans/cards.md)
-- Card 9 — Walton 7 schemes + attacks + explanation
 - Card 9 — Walton 7 schemes + attacks + explanation
 - Card 10 — GraphRAG + Neo4j KG; SRQ2 configs A/B/C
 - Card 11 — evaluation metrics (6 dimensions)
@@ -31,3 +30,4 @@
 - Card 3 — real model clients (Meditron / LLaVA-Med 4-bit / BioViL) — PR #10 (2026-06-30)
 - Card 4 — Vision Agent (BioViL CLIP Image RAG + LLaVA-Med) — PR #11 (2026-06-30)
 - Card 5 — Report Agent (scispaCy NER + Meditron; numpy-1 env resolved) — PR #12 (2026-06-30)
+- Card 6 — Clinical Agent (EHR serialisation + Meditron) — PR #13 (2026-06-30)
