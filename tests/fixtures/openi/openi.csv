@@ -1,0 +1,3 @@
+uid,image,report_text,labels
+FAKEOI1,FAKEOI1.png,"FINDINGS: The cardiac silhouette is enlarged. IMPRESSION: Cardiomegaly.",Cardiomegaly
+FAKEOI2,FAKEOI2.png,"FINDINGS: Lungs are clear. IMPRESSION: No acute cardiopulmonary disease.",No Finding

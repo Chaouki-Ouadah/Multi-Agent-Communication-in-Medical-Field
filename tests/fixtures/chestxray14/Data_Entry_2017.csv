@@ -1,0 +1,5 @@
+Image Index,Finding Labels,Patient ID,Follow-up #
+FAKE0001_000.png,Cardiomegaly|Effusion,FAKE0001,0
+FAKE0002_000.png,No Finding,FAKE0002,0
+FAKE0003_000.png,Pneumonia|Infiltration,FAKE0003,0
+FAKE0004_000.png,Atelectasis,FAKE0004,0
