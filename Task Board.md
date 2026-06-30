@@ -4,13 +4,12 @@
 > Full card detail: `docs/plans/cards.md`.
 
 ## Today
-- Card 10 — GraphRAG + Neo4j KG; SRQ2 configs A/B/C [HEAVY — resolve graphrag numpy~=2.1 conflict first]
+- Card 11 — evaluation metrics (6 dimensions; dissertation Table 4.5)
 
 ## This Week
-- Card 11 — evaluation metrics (6 dimensions)
+- Card 12 — baselines B1–B5 + ablations A1–A7
 
 ## Backlog (build order — docs/plans/cards.md)
-- Card 11 — evaluation metrics (6 dimensions)
 - Card 12 — baselines B1–B5 + ablations A1–A7
 - Card 13 — Streamlit UI (CXR + modality panels + arg tree)
 - Card 14 — model-selection benchmark harness
@@ -31,3 +30,5 @@
 - Card 7 — LangGraph debate + Supervisor (≤5 rounds, counter-argument, prompt-echo fix) — PR #14 (2026-06-30)
 - Card 8 — Dung's AAF + preferred-extension resolver (+ pip-audit chromadb ignore) — PR #15 (2026-06-30)
 - Card 9 — Walton 7 schemes + lexical attack-former + explanation narrative — PR #16 (2026-06-30)
+- Card 10a — unified retriever interface + Vector RAG + hybrid fusion — PR #17 (2026-07-01)
+- Card 10b — GraphRAG (isolated venv) + Neo4j/PrimeKG; SRQ2 B/C live — PR #18 (2026-07-01)
