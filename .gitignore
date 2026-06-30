@@ -27,8 +27,10 @@ env/
 credentials.json
 
 # ── Data (no real patient data; surrogate is regenerable) ──────────────────────
-data/surrogate/*
-data/mi_complications/*
+data/chestxray14/*
+data/openi/*
+data/mimic_demo/*
+data/mimic/*
 data/knowledge/*
 !data/**/.gitkeep
 !data/**/README.md

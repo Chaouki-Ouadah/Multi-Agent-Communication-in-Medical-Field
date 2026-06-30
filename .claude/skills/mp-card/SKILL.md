@@ -28,18 +28,22 @@ the card genuinely has nothing for it.
 
 ---
 
-## STACK (what this project is)
+## STACK (what this project is — MIMIC multimodal, dissertation v6)
 
-- **Language:** Python `>=3.10,<3.13`. Runs in conda env `medargue` (3.12) — `conda activate medargue`.
-- **Orchestration:** LangGraph 1.0.9 (debate state machine).
-- **Argumentation:** NetworkX (custom Dung's AAF + Walton schemes).
-- **KG-RAG:** ChromaDB (Track 1) → Microsoft GraphRAG + Neo4j (later).
-- **NER:** scispaCy `en_core_sci_lg`.
-- **LLM (local, free):** Ollama — primary `meditron` (clinical) or `llama3.1:8b`; stronger `qwen2.5:14b`.
-  Baseline GPT-4o (API) for comparison only. Base URL `http://localhost:11434`.
-- **UI:** Streamlit + Graphviz (arg-tree viz). Design spec: `docs/design/ui-spec.md`.
-- **Tests:** pytest (markers: `slow`, `e2e`, `llm`). E2E: Playwright vs Streamlit.
-- **Tracking:** MLflow. **Data:** surrogate (Track 1) → UCI/MIMIC (after credentialing).
+- **Language:** Python `>=3.10,<3.13`. conda env `medargue` (3.12) — `conda activate medargue`.
+- **Data (multimodal):** CXR image + radiology report + structured EHR, linked by subject_id/study_id;
+  targets = CheXpert 14 labels (focus 5). Track-1 surrogates: NIH ChestX-ray14 / OpenI / MIMIC-IV Demo
+  (open) → real MIMIC after credentialing.
+- **Agents (modality-partitioned):** Vision (CXR, LLaVA-Med 7B), Report (text, Meditron-8B), Clinical
+  (EHR, Meditron-8B), Supervisor (text args only, Meditron-8B). All 4-bit, loaded sequentially (8 GB).
+- **Orchestration:** LangGraph v1.0+ debate state machine (≤5 rounds).
+- **Argumentation:** NetworkX (Dung's AAF preferred extensions + Walton 7 schemes).
+- **RAG:** ChromaDB (CLIP Image RAG via BioViL + text vector) + Microsoft GraphRAG + Neo4j
+  (UMLS/SNOMED/ICD-10/PrimeKG); SRQ2 configs A/B/C.
+- **Models (local):** Ollama `meditron` (text), LLaVA-Med 7B (VLM), BioViL (image embed),
+  `llama3.1:8b` (A5/general baseline), GPT-4o (B1 API baseline). See `docs/llm-setup.md`.
+- **NER:** scispaCy `en_core_sci_lg`. **UI:** Streamlit + Graphviz (`docs/design/ui-spec.md`).
+- **Tests:** pytest (markers `slow`/`e2e`/`llm`); E2E Playwright vs Streamlit. **Tracking:** MLflow.
 
 ---
 
@@ -76,11 +80,12 @@ Read every card, before planning:
   recommendation, UI panel) carries a "not clinical advice" label. [Source: IMPLEMENTATION_CONTEXT §10]
 - **No real patient data** in the surrogate track. MIMIC/UCI only after PhysioNet + CITI. Never
   commit real patient data.
-- **`BaseDatasetLoader` interface is stable.** Swap data sources (Surrogate→UCI→MIMIC) by
+- **`BaseDatasetLoader` interface is stable.** Swap data sources (surrogate → real MIMIC) by
   implementing the same ABC — never change the pipeline to fit a loader.
 - **Determinism:** every randomness path takes `seed=42`. Tests must be reproducible.
-- **Information partitioning is the independent variable** — agents disagree because they hold
-  different feature partitions, NOT because of tone/attitude prompts.
+- **Modality partitioning is the independent variable (OIDP)** — agents disagree because they hold
+  different *modalities* (image / report / EHR), NOT because of tone/attitude prompts. An agent must
+  never receive a modality outside its partition (test it).
 - **TDD RED first.** Write the failing test before implementation. RED → GREEN → REFACTOR.
 - **All local gates green before push.** Never `--no-verify`. Small PRs to `main`.
 - **Pin versions** (requirements*.txt). Keep modules small + pure where logic is testable.

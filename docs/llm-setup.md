@@ -1,47 +1,53 @@
-# LLM Setup — Local Ollama for the medargue agents
+# Model Setup — local models for the medargue agents
 
-The multi-agent debate runs on **local, free** models served by **Ollama** (`http://localhost:11434`).
-GPT-4o (API) is used only as a comparison baseline.
+The debate runs on **local, free** models. Text agents (Report / Clinical / Supervisor) use
+**Meditron-8B** via **Ollama**; the **Vision** agent uses **LLaVA-Med 7B** (VLM) + **BioViL** image
+embeddings via Hugging Face Transformers. GPT-4o (API) is the B1 baseline only. All local models run
+**4-bit on 8 GB VRAM**, loaded **sequentially** (not concurrently).
 
-## Installed models (verified on this machine)
+## Models & roles
 
-| Env var | Model | Role |
-|---------|-------|------|
-| `LLM_PRIMARY_MODEL` | `meditron` (3.8 GB, EPFL clinical LLM) | primary agent reasoning |
-| `LLM_STRONG_MODEL` | `qwen2.5:14b` (9.0 GB) | stronger reasoning / harder cases |
-| `LLM_FALLBACK_MODEL` | `llama3.1:8b` (4.9 GB) | general fallback |
-| `LLM_BASELINE_MODEL` | `gpt-4o` (API) | baseline comparison only |
+| Env var | Model | Role | Serving |
+|---------|-------|------|---------|
+| `LLM_PRIMARY_MODEL` | `meditron` (EPFL clinical) | Report / Clinical / Supervisor text reasoning | Ollama |
+| `VLM_MODEL` | `LLaVA-Med 7B` | Vision Agent VQA on CXR | HF Transformers (4-bit) |
+| `EMBED_MODEL` | `BioViL` | CXR image embeddings (CLIP Image RAG) | HF / `health-multimodal` |
+| `LLM_BASELINE_GENERAL` | `llama3.1:8b` | A5 ablation / general-LLM baseline | Ollama |
+| `LLM_STRONG_MODEL` | `qwen2.5:14b` | stronger reasoning fallback | Ollama |
+| `LLM_BASELINE_MODEL` | `gpt-4o` (API) | B1 zero-shot baseline only | OpenAI API |
 
-Check: `ollama list`. Pull more: `ollama pull <model>`.
+Check Ollama models: `ollama list` (meditron, llama3.1:8b, qwen2.5:14b installed). LLaVA-Med + BioViL
+weights are pulled from HF during the Vision/model-client cards (not committed).
 
-## Verify it works
+## Verify Ollama works
 ```bash
 curl -s http://localhost:11434/api/generate \
-  -d '{"model":"meditron","prompt":"Define anterior MI in one sentence.","stream":false}'
+  -d '{"model":"meditron","prompt":"List two findings suggesting cardiomegaly on a chest X-ray.","stream":false}'
 # → JSON with a clinical "response" field
 ```
 
-## How agents connect (the wiring contract — implement during agent cards)
+## Wiring contract (implement during Card 3 — model clients)
 
-- All LLM access goes through **one mockable client wrapper** (e.g. `src/agents/llm_client.py`),
-  never a direct call in business logic. Unit tests inject a fake; only `@pytest.mark.llm` tests hit
-  a live model.
-- Use LangChain's Ollama integration inside LangGraph nodes:
+- Every model call goes through **one mockable client** — never a direct call in business logic:
+  `src/agents/llm_client.py` (Meditron via Ollama), `src/agents/vlm_client.py` (LLaVA-Med),
+  `src/agents/embeddings.py` (BioViL). Unit tests inject fakes; only `@pytest.mark.llm` (and `slow`)
+  tests hit live models.
+- Ollama text via LangChain:
   ```python
-  from langchain_ollama import ChatOllama  # or langchain_community.chat_models.ChatOllama
+  from langchain_ollama import ChatOllama
   llm = ChatOllama(
       model=os.environ.get("LLM_PRIMARY_MODEL", "meditron"),
       base_url=os.environ.get("OLLAMA_BASE_URL", "http://localhost:11434"),
       temperature=float(os.environ.get("LLM_TEMPERATURE", "0.2")),
   )
   ```
-- **Determinism:** fix `temperature` low and pass a seed where the backend supports it; record the
-  exact model + params in MLflow for each run so experiments are reproducible.
-- **Config source:** values come from `.env` (copy from `.env.example`). Never hardcode model names
-  in modules — read the env vars so the model can be swapped without code changes.
+- **VRAM discipline:** load one heavy model at a time (Vision pass, then text agents); free between
+  stages. **Determinism:** low temperature; log exact model + params to MLflow per run.
+- **Config from `.env`** — never hardcode model names in modules.
 
 ## Notes
-- `meditron` is Llama-2-based (EPFL Meditron-7B). The dissertation spec named "Llama-3-Meditron-8B";
-  `meditron` is the freely-available Ollama equivalent. Swap via `LLM_PRIMARY_MODEL` if a better
-  clinical model is pulled later.
-- Ollama must be running (`ollama serve` / the desktop app) before any `llm`-marked test or a UI run.
+- `meditron` (Ollama) is the freely-available EPFL Meditron; the dissertation names "Meditron-8B" /
+  "Llama-3-Meditron-8B" — swap via `LLM_PRIMARY_MODEL` if a better clinical build is pulled.
+- The model-selection benchmark card (Card 14) empirically compares Meditron vs Llama-3.1, BioViL vs
+  MedCLIP, LLaVA-Med vs LLaVA-1.5 on F1 / latency / VRAM — choices are justified, not assumed.
+- Ollama must be running before any `llm`-marked test or UI run.

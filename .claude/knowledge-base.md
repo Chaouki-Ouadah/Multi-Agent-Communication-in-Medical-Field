@@ -10,15 +10,17 @@
 - **Hook line endings**: Claude Code hooks run via git-bash and require LF line endings; CRLF causes carriage-return parse failures. Normalize hooks to LF after copying from Windows sources. [Source: empirical — file showed CRLF; hooks failed until normalized, 2026-06-29]
 - **Local CI gate**: `ruff check .`, `ruff format --check .`, `mypy`, `pytest -m "not slow and not llm"` must pass before push. [Source: CLAUDE.md, engineering-methodology.md §7]
 
-## Project architecture
-- **Loader contract**: all data flows through `BaseDatasetLoader` (load, feature_domains, targets, variable_dictionary). Keep it stable so SurrogateLoader can be swapped for UCI/MIMIC with no pipeline changes. [Source: IMPLEMENTATION_CONTEXT.md §2]
-- **Surrogate shape**: ~111 features (78 binary, 22 ordinal, 11 continuous), 12 complication targets, 10–15% missingness, seed=42 deterministic, mimics UCI #579. [Source: IMPLEMENTATION_CONTEXT.md §2]
-- **Agent partition (independent variable)**: History&Risk (~37 feats), Diagnostic (~46), Treatment&Progression (~28), Supervisor (all 111). Agents disagree because they hold different data, not different tone. [Source: IMPLEMENTATION_CONTEXT.md §3]
-- **Argumentation**: Dung's Abstract Argumentation Framework via NetworkX; preferred extensions resolve the debate; Walton schemes structure arguments. [Source: IMPLEMENTATION_CONTEXT.md §4, Appendix B]
-- **Pipeline order**: row → vignette → partition → NER → KG retrieval → 3-agent debate (LangGraph) → AAF resolution → explanation → output. [Source: IMPLEMENTATION_CONTEXT.md §3]
-- **Eval dimensions**: multi-label F1 (macro/micro), per-complication recall, explainability, process transparency, calibration (ECE), robustness, information fusion. [Source: IMPLEMENTATION_CONTEXT.md §8]
+## Project architecture (MIMIC multimodal — dissertation v6 is authoritative)
+- **Data is MULTIMODAL, not tabular**: CXR image + radiology report + structured EHR, linked by subject_id/study_id; targets = CheXpert 14 labels (focus 5). NOT UCI #579. [Source: Dissertation_Final_v6.pdf pp.34-36]
+- **Loader contract**: `BaseDatasetLoader` (cases, labels, modalities, variable_dictionary); a Case bundles the three modalities. Surrogate loaders -> MIMIC later, same interface. [Source: IMPLEMENTATION_CONTEXT.md §2]
+- **Surrogate datasets are REAL open data** (no synthetic generation): NIH ChestX-ray14 (images), OpenI Indiana (reports), MIMIC-IV Demo (EHR); mirror MIMIC formats. [Source: Dissertation_Final_v6.pdf p.36]
+- **Agents partition by MODALITY (independent variable, OIDP)**: Vision (CXR image, LLaVA-Med 7B), Report (report text, Meditron-8B), Clinical (EHR, Meditron-8B), Supervisor (text args only, Meditron-8B). [Source: Dissertation_Final_v6.pdf pp.36-38]
+- **Argumentation**: Dung's AAF via NetworkX, preferred extensions; Walton's 7 clinically-relevant schemes label/weight arguments; text-domain, modality-agnostic. [Source: Dissertation_Final_v6.pdf pp.41-43]
+- **Debate**: LangGraph state machine, <=5 rounds, converge when no new attacks; Supervisor never sees raw data. [Source: Dissertation_Final_v6.pdf p.39]
+- **RAG (SRQ2)**: A=Vector (ChromaDB), B=GraphRAG (Microsoft+Neo4j, UMLS/SNOMED/ICD-10/PrimeKG), C=Hybrid (+CLIP Image RAG via BioViL). [Source: Dissertation_Final_v6.pdf pp.43-44]
+- **Eval (6 dims)**: multi-label F1 macro/micro, per-pathology AUROC, explainability, process transparency, ECE, Cohen's kappa; baselines B1-B5, ablations A1-A7. [Source: Dissertation_Final_v6.pdf pp.45-48]
 
 ## Guardrails
 - **Not clinical advice**: label every model output as a research-prototype, non-clinical result. [Source: IMPLEMENTATION_CONTEXT.md §10]
-- **No real patient data** in the surrogate track; MIMIC/UCI only after PhysioNet + CITI credentialing. [Source: IMPLEMENTATION_CONTEXT.md §10]
+- **No credentialed/real patient data**; real MIMIC only after PhysioNet+CITI+ethics. Track-1 uses open surrogates. [Source: IMPLEMENTATION_CONTEXT.md §10]
 - **Build discipline**: strict TDD (RED → GREEN → REFACTOR), one feature branch per §6 step, small PRs to main, tests green before merge. [Source: IMPLEMENTATION_CONTEXT.md §6, engineering-methodology.md §3]

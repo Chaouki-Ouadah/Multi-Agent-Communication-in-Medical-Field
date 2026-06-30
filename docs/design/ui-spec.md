@@ -51,26 +51,30 @@ Use a **static literal map** for status→class/color (never build color strings
 ├──────────────┬─────────────────────────────────────────────┤
 │  SIDEBAR     │  MAIN                                         │
 │  - case pick │  Row 1: KPI cards — recommendation, confidence,│
-│  - seed      │          #args, #attacks, debate rounds        │
-│  - model     │  Row 2: 3 agent panels (History / Diagnostic / │
-│  - run btn   │          Treatment) — claims + cited features   │
+│  - RAG cfg   │          #args, #attacks, debate rounds        │
+│  - model     │  Row 2: CXR image panel + 3 modality panels    │
+│  - run btn   │          (Vision / Report / Clinical) — claims  │
 │              │  Row 3: Argument graph (Graphviz arg-tree)      │
 │              │  Row 4: Resolved extension + explanation        │
-│              │  Row 5: per-complication risk table             │
+│              │  Row 5: per-pathology table (14 CheXpert labels)│
 └──────────────┴─────────────────────────────────────────────┘
 ```
 
 - **KPI cards** (`st.columns` + `st.metric`/custom): recommendation label, calibrated confidence,
   argument count, attack count, debate rounds. Minimal padding, equal widths.
-- **3 agent panels:** one `st.container` per agent, color-keyed header (each agent a distinct hue
-  from the scale). Show the agent's claims, the **feature values it cited**, and what it could NOT
-  see (reinforces the partitioning story). Collapsible.
+- **CXR image panel:** show the chest X-ray + (optional) top-k CLIP-RAG retrieved similar cases with
+  their labels — what the Vision Agent reasoned over.
+- **3 modality panels:** one `st.container` per agent (**Vision / Report / Clinical**), color-keyed
+  header (distinct hue each). Show the agent's claims, the **evidence it cited** (image finding /
+  report span / EHR value), the Walton scheme label, and which modalities it could NOT see
+  (reinforces the OIDP partitioning story). Collapsible.
 - **Argument graph:** Graphviz digraph — nodes = arguments (colored by accepted/rejected), edges =
   attacks (red, arrowed). Accepted (preferred extension) nodes bordered green/bold. Click/hover →
   argument detail. This is the centerpiece — give it the most space.
-- **Explanation:** narrative from the resolved extension, with inline citations to feature values;
+- **Explanation:** narrative from the resolved extension, with inline citations to the cited evidence;
   ends with the disclaimer.
-- **Risk table:** 12 complications × {predicted, confidence}; row highlight on hover; sortable.
+- **Pathology table:** 14 CheXpert labels × {predicted, confidence}; focus-5 highlighted; row
+  highlight on hover; sortable.
 
 ## 5. The disclaimer (mandatory, every screen)
 

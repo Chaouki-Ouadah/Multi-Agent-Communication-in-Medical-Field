@@ -4,22 +4,24 @@
 > Durable facts live in the auto-memory store; this file is the active-work scratch.
 
 ## Now
-Workspace + Claude Code tooling fully set up, pushed to `main`. Hooks/agents/commands/MCP/skills
-+ superpowers plugin all active. Pre-implementation prep done: §6 plan at
-`docs/plans/build-order.md`, knowledge-base enriched, Task Board + Scratchpad scaffolded.
-**Awaiting greenlight** to implement — next: SurrogatePatientGenerator (§6.2, TDD RED first).
+**Project realigned to dissertation v6 (MIMIC multimodal)** — the UCI #579 synthetic-tabular spec was
+the stale pre-pivot design. IMPLEMENTATION_CONTEXT, cards, build-order, README, docs, src stubs,
+.env, knowledge-base all rewritten on branch `chore/align-dissertation-v6` (PR pending).
+Next after merge: **Card 1 — multimodal loader + surrogate datasets** (NIH ChestX-ray14 / OpenI /
+MIMIC-IV Demo), TDD RED first.
 
 ## Open threads
-- gh CLI not authed → user must run `gh auth login --web` before first push/PR.
-- Optional `/plugin install superpowers@superpowers-dev` (full plugin) — user to run; skills already work.
+- Open implementation decisions flagged in cards.md (attack threshold, convergence def, confidence
+  source, GraphRAG corpus) — resolve per card with the user.
 
 ## Recent decisions
-- [2026-06-29] conda env `medargue` @ Python 3.12 (not base 3.13 — ML stack lags 3.13).
-- [2026-06-29] Branch model: `main` + feature branches; PRs target main.
-- [2026-06-29] Full Claudify skills library gitignored (local-only) to keep academic repo lean.
+- [2026-06-30] Dissertation_Final_v6.pdf is authoritative → realigned everything to MIMIC multimodal
+  (Vision/Report/Clinical modality agents; CheXpert-14; CLIP image-RAG + GraphRAG; Dung's AAF + Walton 7).
+- [2026-06-29] conda env `medargue` @ Python 3.12; main + feature branches; one card = one PR.
+- [2026-06-29] Full Claudify skills library gitignored (local-only).
 
 ## Blockers
-- (none)
+- (none) — real MIMIC blocked on PhysioNet+CITI+ethics (Track 2, parallel).
 
 ## Session handoff
-- Setup phase done. Resume by confirming greenlight, then `/card`-style TDD on SurrogatePatientGenerator.
+- Realignment branch open. After it merges, run `/mp-card` on Card 1.

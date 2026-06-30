@@ -41,7 +41,8 @@ pytest -m "not slow and not llm"   # unit
 ## Guardrails (IMPLEMENTATION_CONTEXT.md §10)
 
 - Research prototype only — **not clinical advice**. Label every model output as such.
-- **No real patient data** in the surrogate track. MIMIC/UCI only after PhysioNet+CITI credentialing.
+- **No credentialed/real patient data**. Real MIMIC only after PhysioNet+CITI+ethics; Track-1 uses
+  open surrogates (NIH ChestX-ray14 / OpenI / MIMIC-IV Demo). Authoritative spec = `Dessertation Doc/Dissertation_Final_v6.pdf`.
 - Pin versions. Keep the `BaseDatasetLoader` interface stable so the data source can be swapped.
 - Commit often, small PRs, tests green before merge. Never `--no-verify`.
 
