@@ -4,11 +4,11 @@
 > Durable facts live in the auto-memory store; this file is the active-work scratch.
 
 ## Now
-Realigned to dissertation v6 (MIMIC multimodal) — merged (PR #7). **Card 1 (multimodal loader +
-Case + CheXpert-14 + 3 surrogate loaders) done** — PR #8 open, auto-merge armed (TDD: 12 tests
-RED→GREEN, gate green, /security-review clean). Next: **Card 2 — modality partitioner + Case views**.
-Key decisions locked: per-modality Cases (tri-modal linkage waits for real MIMIC); CheXpert label
-policy configurable, default = CheXpert-paper per-pathology.
+Realigned to dissertation v6 (merged #7). **Card 1 loaders merged (#8). Card 2 modality partitioner
+merged (#9).** Next: **Card 3 — model clients (Meditron / LLaVA-Med / BioViL), mockable.**
+Decisions locked: per-modality Cases (tri-modal linkage waits for real MIMIC); CheXpert label policy
+configurable (default CheXpert-paper per-pathology); views are frozen + label-free (OIDP enforced
+structurally). PR discipline: I raise PR + STOP; user verifies green + merges (see [[pr-merge-discipline]]).
 
 ## Open threads
 - Open implementation decisions flagged in cards.md (attack threshold, convergence def, confidence

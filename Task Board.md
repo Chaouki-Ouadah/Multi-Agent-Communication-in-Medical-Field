@@ -4,15 +4,13 @@
 > Full card detail: `docs/plans/cards.md`.
 
 ## Today
-- Card 1 — multimodal loader + surrogate datasets (PR #8, auto-merge armed)
-
-## This Week
-- Card 2 — modality partitioner + Case views
 - Card 3 — model clients (Meditron / LLaVA-Med / BioViL), mockable
 
-## Backlog (build order — docs/plans/cards.md)
+## This Week
 - Card 4 — Vision Agent (BioViL + CLIP Image RAG + LLaVA-Med)
 - Card 5 — Report Agent (sections + scispaCy NER + Meditron)
+
+## Backlog (build order — docs/plans/cards.md)
 - Card 6 — Clinical Agent (EHR serialisation + Meditron)
 - Card 7 — LangGraph debate + Supervisor (≤5 rounds)
 - Card 8 — Dung's AAF + preferred-extension resolver
@@ -29,3 +27,6 @@
 - Claude config pull (hooks/agents/commands/MCP/skills) + superpowers + ui-ux-pro-max (2026-06-29)
 - mp-card skill, CI gates, UI spec, Ollama wiring, card backlog (2026-06-30)
 - First push of `main` + Dependabot triage + CI fix (2026-06-30)
+- Realign spec to dissertation v6 / MIMIC multimodal — PR #7 (2026-06-30)
+- Card 1 — multimodal loader + Case + CheXpert-14 + surrogate loaders — PR #8 (2026-06-30)
+- Card 2 — modality partitioner + Case views (OIDP) — PR #9 (2026-06-30)
