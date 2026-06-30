@@ -4,13 +4,12 @@
 > Full card detail: `docs/plans/cards.md`.
 
 ## Today
-- Card 11 — evaluation metrics (6 dimensions; dissertation Table 4.5)
+- Card 13 — Streamlit UI (CXR + modality panels + arg tree)
 
 ## This Week
-- Card 12 — baselines B1–B5 + ablations A1–A7
+- Card 14 — model-selection benchmark harness
 
 ## Backlog (build order — docs/plans/cards.md)
-- Card 12 — baselines B1–B5 + ablations A1–A7
 - Card 13 — Streamlit UI (CXR + modality panels + arg tree)
 - Card 14 — model-selection benchmark harness
 - Card 15 — swap surrogate → real MIMIC (post credentialing)
@@ -32,3 +31,5 @@
 - Card 9 — Walton 7 schemes + lexical attack-former + explanation narrative — PR #16 (2026-06-30)
 - Card 10a — unified retriever interface + Vector RAG + hybrid fusion — PR #17 (2026-07-01)
 - Card 10b — GraphRAG (isolated venv) + Neo4j/PrimeKG; SRQ2 B/C live — PR #18 (2026-07-01)
+- Card 11 — six-dimension evaluation metrics (F1/AUROC/ECE/κ + transparency/explainability) — PR #19 (2026-07-01)
+- Card 12 — baselines B1–B5 + ablations A1–A7 + Wilcoxon harness — PR #20 (2026-07-01)
