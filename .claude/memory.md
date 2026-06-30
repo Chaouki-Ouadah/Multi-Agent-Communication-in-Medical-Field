@@ -4,10 +4,15 @@
 > Durable facts live in the auto-memory store; this file is the active-work scratch.
 
 ## Now
-Merged: Cards 1–6 (#8 loaders, #9 partitioner, #10 clients, #11 Vision, #12 Report, **#13 Clinical**).
-All 3 modality agents done (Vision/Report/Clinical, real + GPU-verified). 2-agent live demo ran OK.
-Next: **Card 7 — LangGraph debate + Supervisor (≤5 rounds)** — also folds in the Report/Clinical
-prompt-echo output-parse fix (Meditron echoes prompt → junk Sign args; see cards.md Card 7).
+Merged: Cards 1–7 (#8 loaders, #9 partitioner, #10 clients, #11 Vision, #12 Report, #13 Clinical,
+**#14 debate**). Card 7 done: LangGraph multi-round debate (`pipeline/graph.py` build_debate_graph /
+run_debate) + `SupervisorAgent` (raw-data-blind cross-modal conflict → `Attack`); agents gained an
+`opponents` arg for counter-argument (OIDP intact, text-only); shared `agents/_parsing.clean_findings`
+folded in the prompt-echo fix across all 3 agents. `DebateState` TypedDict (arguments reducer). Pure
+tests + live debate (real Meditron, GPU) green. /security-review: no findings.
+Next: **Card 8 — Dung's AAF + preferred-extension resolver** (consumes DebateState.attacks).
+PENDING fold-in on Card 8 branch: `git stash pop` stash@{0} = pip-audit ignore PYSEC-2026-311
+(embedded chromadb only → server RCE unreachable; no fixed release; ci.yml+security.yml+requirements).
 Decisions locked: per-modality Cases; CheXpert policy configurable; OIDP frozen views; clients real
 (no mocks); LLaVA-Med 4-bit via Ollama `rohithbojja/llava-med-v1.5`; BioViL via hi-ml-multimodal;
 CLIP Image RAG = BioViL→ChromaDB (per-instance collection); shared `Argument` in

@@ -35,4 +35,7 @@ jobs:
         run: git ls-files -z | xargs -0 detect-secrets-hook --baseline .secrets.baseline
 
       - name: pip-audit (dependency CVEs)
-        run: pip-audit -r requirements.txt --strict || echo "::warning::pip-audit found advisories — review above"
+        # PYSEC-2026-311: ChromaDB server-mode pre-auth RCE (/api/v2 + trust_remote_code). Not
+        # reachable here — we use embedded chromadb.EphemeralClient (no HTTP server). No fixed
+        # release exists yet (latest 1.5.9 still affected). Revisit when a patch ships.
+        run: pip-audit -r requirements.txt --strict --ignore-vuln PYSEC-2026-311 || echo "::warning::pip-audit found advisories — review above"
