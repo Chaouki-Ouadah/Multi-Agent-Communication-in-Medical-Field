@@ -7,6 +7,14 @@ updates:
     open-pull-requests-limit: 5
     commit-message:
       prefix: "chore(deps)"
+    groups:
+      # One PR per week for all Python deps instead of one-per-package.
+      python-deps:
+        patterns: ["*"]
+    ignore:
+      # langgraph is pinned by IMPLEMENTATION_CONTEXT (Appendix C examples target 1.0.x);
+      # bump deliberately during implementation, not via auto-PR.
+      - dependency-name: "langgraph"
 
   - package-ecosystem: github-actions
     directory: "/"
@@ -14,3 +22,7 @@ updates:
       interval: weekly
     commit-message:
       prefix: "chore(ci)"
+    groups:
+      # One PR per week for all GitHub Actions bumps.
+      github-actions:
+        patterns: ["*"]

@@ -86,10 +86,8 @@ jobs:
       - run: pip install "bandit[toml]" pip-audit detect-secrets
       - name: Bandit (SAST)
         run: bandit -c pyproject.toml -r src
-      - name: detect-secrets
-        run: |
-          detect-secrets scan --baseline .secrets.baseline
-          git diff --exit-code .secrets.baseline || (echo "::error::New secrets detected" && exit 1)
+      - name: detect-secrets (audit tracked files against baseline)
+        run: git ls-files -z | xargs -0 detect-secrets-hook --baseline .secrets.baseline
       - name: pip-audit (dependency CVEs)
         run: pip-audit -r requirements.txt --strict || echo "::warning::pip-audit advisories — review"
 
