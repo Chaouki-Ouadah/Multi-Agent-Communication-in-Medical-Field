@@ -27,8 +27,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v6
         with: { python-version: "3.12", cache: pip }
       - run: pip install ruff
       - run: ruff format --check .
@@ -39,8 +39,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v6
         with: { python-version: "3.12", cache: pip }
       - run: pip install ruff
       - run: ruff check --output-format=github .
@@ -51,8 +51,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v6
         with: { python-version: "3.12", cache: pip }
       - run: pip install -r requirements-dev.txt
       - run: mypy
@@ -63,13 +63,13 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v6
         with: { python-version: "3.12", cache: pip }
       - run: pip install -r requirements-dev.txt
       - name: pytest (unit + integration)
         run: pytest -m "not slow and not llm and not e2e" --cov=src --cov-report=xml --cov-report=term-missing
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with: { name: coverage, path: coverage.xml, if-no-files-found: ignore }
 
@@ -80,8 +80,8 @@ jobs:
     timeout-minutes: 15
     needs: [format, lint, types, test]
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v6
         with: { python-version: "3.12", cache: pip }
       - run: pip install "bandit[toml]" pip-audit detect-secrets
       - name: Bandit (SAST)
@@ -98,8 +98,8 @@ jobs:
     timeout-minutes: 15
     needs: [quality-gate]
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v6
         with: { python-version: "3.12", cache: pip }
       - run: pip install build
       - name: Build wheel/sdist
@@ -114,8 +114,8 @@ jobs:
     timeout-minutes: 30
     needs: [build]
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v6
         with: { python-version: "3.12", cache: pip }
       - run: pip install -r requirements-dev.txt
       - run: python -m playwright install --with-deps chromium
