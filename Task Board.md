@@ -4,14 +4,13 @@
 > Full card detail: `docs/plans/cards.md`.
 
 ## Today
-- Card 3 — model clients (Meditron / LLaVA-Med / BioViL), mockable
+- Card 4 — Vision Agent (BioViL + CLIP Image RAG + LLaVA-Med)
 
 ## This Week
-- Card 4 — Vision Agent (BioViL + CLIP Image RAG + LLaVA-Med)
-- Card 5 — Report Agent (sections + scispaCy NER + Meditron)
+- Card 5 — Report Agent (sections + scispaCy NER + Meditron) — needs numpy-2 spaCy stack first
+- Card 6 — Clinical Agent (EHR serialisation + Meditron)
 
 ## Backlog (build order — docs/plans/cards.md)
-- Card 6 — Clinical Agent (EHR serialisation + Meditron)
 - Card 7 — LangGraph debate + Supervisor (≤5 rounds)
 - Card 8 — Dung's AAF + preferred-extension resolver
 - Card 9 — Walton 7 schemes + attacks + explanation
@@ -30,3 +29,4 @@
 - Realign spec to dissertation v6 / MIMIC multimodal — PR #7 (2026-06-30)
 - Card 1 — multimodal loader + Case + CheXpert-14 + surrogate loaders — PR #8 (2026-06-30)
 - Card 2 — modality partitioner + Case views (OIDP) — PR #9 (2026-06-30)
+- Card 3 — real model clients (Meditron / LLaVA-Med 4-bit / BioViL) — PR #10 (2026-06-30)
