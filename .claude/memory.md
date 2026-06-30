@@ -4,15 +4,18 @@
 > Durable facts live in the auto-memory store; this file is the active-work scratch.
 
 ## Now
-Merged: Cards 1–7 (#8 loaders, #9 partitioner, #10 clients, #11 Vision, #12 Report, #13 Clinical,
-**#14 debate**). Card 7 done: LangGraph multi-round debate (`pipeline/graph.py` build_debate_graph /
-run_debate) + `SupervisorAgent` (raw-data-blind cross-modal conflict → `Attack`); agents gained an
-`opponents` arg for counter-argument (OIDP intact, text-only); shared `agents/_parsing.clean_findings`
-folded in the prompt-echo fix across all 3 agents. `DebateState` TypedDict (arguments reducer). Pure
-tests + live debate (real Meditron, GPU) green. /security-review: no findings.
-Next: **Card 8 — Dung's AAF + preferred-extension resolver** (consumes DebateState.attacks).
-PENDING fold-in on Card 8 branch: `git stash pop` stash@{0} = pip-audit ignore PYSEC-2026-311
-(embedded chromadb only → server RCE unreachable; no fixed release; ci.yml+security.yml+requirements).
+Merged: Cards 1–9 (#8 loaders … #14 debate, **#15 AAF**, **#16 Walton/explanation**).
+Symbolic layer COMPLETE: `argumentation/framework.py` AAF (NetworkX ⟨A,R⟩, claim-keyed nodes) +
+`resolver.py` Dung `preferred_extensions` (controversial-subgraph enumeration) + `schemes.py`
+`WaltonScheme` (7) + `CRITICAL_QUESTIONS` + `form_attacks` (negation/lexical, cross-agent,
+bidirectional→2-cycle) + `explanation.py` `generate_explanation` (winners+evidence, disclaimer-ended).
+All pure, CI-green. Agents still emit free-text scheme strings (enum interprets via scheme_from_label).
+DONE: pip-audit ignore PYSEC-2026-311 in ci.yml+security.yml+requirements (merged with #15).
+Next: **Card 10 — GraphRAG + Neo4j KG (SRQ2 configs A/B/C)** — HEAVY. BLOCKER to resolve first:
+graphrag wants numpy~=2.1 + spacy~=3.8, unsatisfiable with the scispaCy numpy<2 set → isolate
+(separate env/optional-extra) or drop strict pin or pick alt. Also still pure-module pattern: AAF/
+resolver/explanation NOT yet wired into pipeline/graph.py (DebateState.extension/explanation empty) —
+a future wiring card.
 Decisions locked: per-modality Cases; CheXpert policy configurable; OIDP frozen views; clients real
 (no mocks); LLaVA-Med 4-bit via Ollama `rohithbojja/llava-med-v1.5`; BioViL via hi-ml-multimodal;
 CLIP Image RAG = BioViL→ChromaDB (per-instance collection); shared `Argument` in
@@ -39,5 +42,18 @@ CUDA torch cu128. PR discipline: raise PR + STOP, user merges (see [[pr-merge-di
 ## Blockers
 - (none) — real MIMIC blocked on PhysioNet+CITI+ethics (Track 2, parallel).
 
-## Session handoff
-- Realignment branch open. After it merges, run `/mp-card` on Card 1.
+## Session handoff (2026-07-01 — pre-reboot checkpoint)
+- **Cards 1–9 merged** (PRs #8–#16). Symbolic layer complete (AAF/resolver/schemes/explanation).
+- **Card 10 SPLIT** (user): **10a** = retriever interface + Vector RAG (config A, ChromaDB) + hybrid
+  fusion (graph-ready) — plan WRITTEN + APPROVED-pending at `docs/plans/card-10a-retrieval-interface.md`;
+  branch will be `feature/retrieval-interface`; NO Docker needed; NOT started yet. **10b** = MS GraphRAG
+  (isolated venv) + real Neo4j (Docker) + UMLS/SNOMED/ICD-10/PrimeKG — later, infra-gated.
+- Decisions: KG corpus **external-only** (faithful, no leakage); **heavy-faithful path always**
+  ([[heavy-faithful-path]]).
+- **DOCKER FIX IN PROGRESS:** Docker Desktop failed ("virtualization not detected"). Root cause =
+  Virtual Machine Platform feature was OFF + WSL2 had no distro. Ran elevated DISM enable of
+  `Microsoft-Windows-Subsystem-Linux` + `VirtualMachinePlatform` (both succeeded). **PC reboot pending**
+  to finish. HypervisorPresent=True (firmware VT-x already on). After reboot: start Docker Desktop →
+  verify `docker run --rm hello-world` → stage Neo4j container for 10b.
+- **RESUME AFTER REBOOT:** either build Card 10a (say "go 10a") or finish Docker verify first.
+- Earlier realignment note (historical): after realign merged, Card 1 ran. Done.
