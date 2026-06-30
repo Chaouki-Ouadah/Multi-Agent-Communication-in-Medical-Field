@@ -8,9 +8,9 @@ findings are "Argument from Sign". The agent sees ONLY the report (never the ima
 
 from __future__ import annotations
 
-import re
 from typing import Protocol
 
+from src.agents._parsing import clean_findings
 from src.argumentation.framework import Argument
 from src.utils.modality_partitioner import ReportView
 from src.utils.report_sections import extract_sections
@@ -27,8 +27,17 @@ class _Ner(Protocol):
 _DISCLAIMER = "Research prototype — not clinical advice."
 
 
-def _split_findings(text: str) -> list[str]:
-    return [p.strip() for p in re.split(r"[.\n;]+", text) if len(p.strip()) > 2]
+def _opponent_block(opponents: list[Argument] | None) -> str:
+    """Render OTHER specialists' text claims for a counter-argument round (OIDP: text only)."""
+    if not opponents:
+        return ""
+    claims = "; ".join(a.claim for a in opponents if a.claim)
+    if not claims:
+        return ""
+    return (
+        f"Other specialists (image/EHR) argue: {claims}. "
+        "Defend or refine your report-based findings against these claims.\n"
+    )
 
 
 class ReportAgent:
@@ -40,7 +49,9 @@ class ReportAgent:
         self.llm = llm
         self.ner = ner
 
-    def _prompt(self, sections: dict[str, str], entities: list[str]) -> str:
+    def _prompt(
+        self, sections: dict[str, str], entities: list[str], opponents: list[Argument] | None = None
+    ) -> str:
         ents = ", ".join(entities) if entities else "none extracted"
         return (
             "You are a radiology report assistant. From the report sections and clinical entities, "
@@ -48,16 +59,18 @@ class ReportAgent:
             f"FINDINGS: {sections['findings'] or 'n/a'}\n"
             f"IMPRESSION: {sections['impression'] or 'n/a'}\n"
             f"Clinical entities (scispaCy): {ents}\n"
+            f"{_opponent_block(opponents)}"
             f"({_DISCLAIMER})"
         )
 
-    def analyse(self, view: ReportView) -> list[Argument]:
+    def analyse(self, view: ReportView, opponents: list[Argument] | None = None) -> list[Argument]:
         text = view.report_text or ""
         if not text.strip():
             return []
         sections = extract_sections(text)
         entities = self.ner.entities(text)
-        output = self.llm.generate(self._prompt(sections, entities))
+        prompt = self._prompt(sections, entities, opponents)
+        output = self.llm.generate(prompt)
 
         args: list[Argument] = []
         if sections["impression"]:
@@ -69,7 +82,7 @@ class ReportAgent:
                     scheme="Argument from Expert Opinion",
                 )
             )
-        for finding in _split_findings(output):
+        for finding in clean_findings(output, prompt):
             args.append(
                 Argument(
                     agent=self.agent_name,

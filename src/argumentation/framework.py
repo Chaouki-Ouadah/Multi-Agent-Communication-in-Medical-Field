@@ -23,3 +23,18 @@ class Argument:
     evidence: list[str] = field(default_factory=list)
     scheme: str = ""
     confidence: float | None = None
+
+
+@dataclass(frozen=True)
+class Attack:
+    """A directed conflict: `source_claim` attacks `target_claim` (with a short `rationale`).
+
+    Emitted by the Supervisor's cross-modal conflict detection (Card 7). The symbolic layer
+    (Card 8) builds Dung's AAF + preferred extensions from a debate's list of `Attack`s; Card 9
+    attaches Walton critical-question labels. Frozen + hashable so convergence can compare
+    attack sets across debate rounds.
+    """
+
+    source_claim: str
+    target_claim: str
+    rationale: str = ""
