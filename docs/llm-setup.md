@@ -10,8 +10,8 @@ embeddings via Hugging Face Transformers. GPT-4o (API) is the B1 baseline only. 
 | Env var | Model | Role | Serving |
 |---------|-------|------|---------|
 | `LLM_PRIMARY_MODEL` | `meditron` (EPFL clinical) | Report / Clinical / Supervisor text reasoning | Ollama |
-| `VLM_MODEL` | `LLaVA-Med 7B` | Vision Agent VQA on CXR | HF Transformers (4-bit) |
-| `EMBED_MODEL` | `BioViL` | CXR image embeddings (CLIP Image RAG) | HF / `health-multimodal` |
+| `VLM_MODEL` | `z-uo/llava-med-v1.5-mistral-7b_q8_0` (LLaVA-Med) | Vision Agent VQA on CXR | **Ollama** (GPU; avoids the `LlavaMistralForCausalLM` arch / transformers-version conflict) |
+| `EMBED_MODEL` | `microsoft/BiomedVLP-BioViL-T` (BioViL) | CXR image embeddings (CLIP Image RAG) | HF Transformers + torchvision |
 | `LLM_BASELINE_GENERAL` | `llama3.1:8b` | A5 ablation / general-LLM baseline | Ollama |
 | `LLM_STRONG_MODEL` | `qwen2.5:14b` | stronger reasoning fallback | Ollama |
 | `LLM_BASELINE_MODEL` | `gpt-4o` (API) | B1 zero-shot baseline only | OpenAI API |
