@@ -4,18 +4,20 @@
 > Durable facts live in the auto-memory store; this file is the active-work scratch.
 
 ## Now
-Merged: Cards 1–9 (#8 loaders … #14 debate, **#15 AAF**, **#16 Walton/explanation**).
-Symbolic layer COMPLETE: `argumentation/framework.py` AAF (NetworkX ⟨A,R⟩, claim-keyed nodes) +
-`resolver.py` Dung `preferred_extensions` (controversial-subgraph enumeration) + `schemes.py`
-`WaltonScheme` (7) + `CRITICAL_QUESTIONS` + `form_attacks` (negation/lexical, cross-agent,
-bidirectional→2-cycle) + `explanation.py` `generate_explanation` (winners+evidence, disclaimer-ended).
-All pure, CI-green. Agents still emit free-text scheme strings (enum interprets via scheme_from_label).
-DONE: pip-audit ignore PYSEC-2026-311 in ci.yml+security.yml+requirements (merged with #15).
-Next: **Card 10 — GraphRAG + Neo4j KG (SRQ2 configs A/B/C)** — HEAVY. BLOCKER to resolve first:
-graphrag wants numpy~=2.1 + spacy~=3.8, unsatisfiable with the scispaCy numpy<2 set → isolate
-(separate env/optional-extra) or drop strict pin or pick alt. Also still pure-module pattern: AAF/
-resolver/explanation NOT yet wired into pipeline/graph.py (DebateState.extension/explanation empty) —
-a future wiring card.
+Merged: Cards 1–10 (#8 loaders … #16 Walton, **#17 retrieval interface/Vector RAG**, **#18
+GraphRAG+Neo4j**). Symbolic layer COMPLETE (AAF/resolver/schemes/explanation). **Retrieval COMPLETE
+(SRQ2 A/B/C live):** `knowledge/retrieval.py` unified `Retriever` + `RetrievalConfig` A/B/C + real
+ChromaDB `TextVectorRetriever` (A) + graph-ready `HybridRetriever` (C) + `build_retriever`. Card 10b:
+`neo4j_client.py` (env creds) + `kg_schema.py` (PrimeKG ingest) + `graph_rag.py`
+(`Neo4jGraphRetriever` Cypher entity-rel + `GraphRAGRetriever` subprocess→`.venv-graphrag`). Both live
+paths PROVEN: Neo4j Docker `neo4j-medargue` (creds NEO4J_* in .env, dev pw medargue-dev-pw) + real MS
+GraphRAG index/query (Ollama llama3.1:8b + nomic-embed-text, workspace `.graphrag`, both gitignored).
+**Card 10 SPLIT done: 10a=#17, 10b=#18.**
+ISOLATION RULE: graphrag lives ONLY in `.venv-graphrag` (numpy 2.5), invoked by subprocess; NEVER in
+medargue (numpy 1.26.4) or requirements.txt. requirements-graphrag.txt = venv-only.
+Still pure-module pattern: AAF/resolver/explanation + retrievers NOT yet wired into pipeline/graph.py
+(DebateState.extension/explanation empty) — a future wiring card.
+Next: **Card 11 — evaluation metrics (6 dimensions; dissertation Table 4.5)**.
 Decisions locked: per-modality Cases; CheXpert policy configurable; OIDP frozen views; clients real
 (no mocks); LLaVA-Med 4-bit via Ollama `rohithbojja/llava-med-v1.5`; BioViL via hi-ml-multimodal;
 CLIP Image RAG = BioViL→ChromaDB (per-instance collection); shared `Argument` in
