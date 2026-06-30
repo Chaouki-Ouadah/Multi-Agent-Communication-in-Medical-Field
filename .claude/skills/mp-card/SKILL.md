@@ -66,6 +66,9 @@ Read every card, before planning:
 5. `IMPLEMENTATION_CONTEXT.md` — single source of truth for what to build.
 
 ### medargue hard rules (non-negotiable)
+- **One card = one branch = one PR.** Do exactly ONE card at a time. Never batch multiple cards
+  into a branch/PR, never split one card across PRs. Fresh `feature/<card>` from `main` → single PR
+  to `main` → branch deleted after merge. Finish (merge) the current card before starting the next.
 - **Research prototype, NOT clinical advice.** Every model-facing output (explanation,
   recommendation, UI panel) carries a "not clinical advice" label. [Source: IMPLEMENTATION_CONTEXT §10]
 - **No real patient data** in the surrogate track. MIMIC/UCI only after PhysioNet + CITI. Never
