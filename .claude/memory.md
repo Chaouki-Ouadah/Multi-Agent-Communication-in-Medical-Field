@@ -4,11 +4,11 @@
 > Durable facts live in the auto-memory store; this file is the active-work scratch.
 
 ## Now
-**Project realigned to dissertation v6 (MIMIC multimodal)** — the UCI #579 synthetic-tabular spec was
-the stale pre-pivot design. IMPLEMENTATION_CONTEXT, cards, build-order, README, docs, src stubs,
-.env, knowledge-base all rewritten on branch `chore/align-dissertation-v6` (PR pending).
-Next after merge: **Card 1 — multimodal loader + surrogate datasets** (NIH ChestX-ray14 / OpenI /
-MIMIC-IV Demo), TDD RED first.
+Realigned to dissertation v6 (MIMIC multimodal) — merged (PR #7). **Card 1 (multimodal loader +
+Case + CheXpert-14 + 3 surrogate loaders) done** — PR #8 open, auto-merge armed (TDD: 12 tests
+RED→GREEN, gate green, /security-review clean). Next: **Card 2 — modality partitioner + Case views**.
+Key decisions locked: per-modality Cases (tri-modal linkage waits for real MIMIC); CheXpert label
+policy configurable, default = CheXpert-paper per-pathology.
 
 ## Open threads
 - Open implementation decisions flagged in cards.md (attack threshold, convergence def, confidence

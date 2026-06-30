@@ -4,14 +4,13 @@
 > Full card detail: `docs/plans/cards.md`.
 
 ## Today
-- R0 realign spec to dissertation v6 (PR `chore/align-dissertation-v6`)
+- Card 1 — multimodal loader + surrogate datasets (PR #8, auto-merge armed)
 
 ## This Week
-- Card 1 — multimodal loader + surrogate datasets (NIH CXR14 / OpenI / MIMIC-IV Demo), TDD
 - Card 2 — modality partitioner + Case views
+- Card 3 — model clients (Meditron / LLaVA-Med / BioViL), mockable
 
 ## Backlog (build order — docs/plans/cards.md)
-- Card 3 — model clients (Meditron / LLaVA-Med / BioViL), mockable
 - Card 4 — Vision Agent (BioViL + CLIP Image RAG + LLaVA-Med)
 - Card 5 — Report Agent (sections + scispaCy NER + Meditron)
 - Card 6 — Clinical Agent (EHR serialisation + Meditron)
