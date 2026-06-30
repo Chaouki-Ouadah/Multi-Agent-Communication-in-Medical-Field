@@ -4,8 +4,8 @@
 > Durable facts live in the auto-memory store; this file is the active-work scratch.
 
 ## Now
-Merged: Cards 1–4 (#8 loaders, #9 partitioner, #10 model clients, **#11 Vision Agent**).
-Next: **Card 5 — Report Agent (section extraction + scispaCy NER + Meditron)**.
+Merged: Cards 1–5 (#8 loaders, #9 partitioner, #10 clients, #11 Vision, **#12 Report Agent**).
+Next: **Card 6 — Clinical Agent (EHR serialisation + Meditron)**.
 Decisions locked: per-modality Cases; CheXpert policy configurable; OIDP frozen views; clients real
 (no mocks); LLaVA-Med 4-bit via Ollama `rohithbojja/llava-med-v1.5`; BioViL via hi-ml-multimodal;
 CLIP Image RAG = BioViL→ChromaDB (per-instance collection); shared `Argument` in
