@@ -35,6 +35,7 @@ networkx
 pandas
 numpy
 scikit-learn
+kagglehub               # fetch the NIH ChestX-ray14 sample slice (Track-1 surrogate)
 
 # ── UI / tracking ───────────────────────────────────────────────────────────
 streamlit
