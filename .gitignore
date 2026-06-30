@@ -60,6 +60,9 @@ Thumbs.db
 test-results/
 playwright-report/
 
+# ── Dissertation writing material (moved out of code repo) ─────────────────────
+Dessertation Doc/
+
 # ── Dissertation writing artifacts (kept out of code repo) ─────────────────────
 *.aux
 *.log
