@@ -6,15 +6,17 @@ langchain-community
 langchain-ollama
 
 # ── Knowledge / RAG ─────────────────────────────────────────────────────────
-graphrag==3.0.2
+# graphrag deferred to Card 10: it pins numpy~=2.1, which conflicts with the scispaCy-driven
+# numpy<2 set (Card 5). Re-add (isolated / version-resolved) when GraphRAG lands.
 chromadb
 neo4j
 
 # ── NLP / NER ───────────────────────────────────────────────────────────────
-scispacy
-spacy
+scispacy==0.6.2          # numpy-1-era; coheres with transformers 5.x on numpy 1.26
+spacy>=3.7,<3.8          # pinned by the en_core_sci_* model (Card 5)
+numpy>=1.26,<2           # coherent set: scispaCy/spaCy/scipy/transformers all on numpy 1.26
 sentencepiece            # tokenizer backend for medical LLMs
-# scispaCy model installed separately (large): see requirements-models.txt
+# scispaCy model installed separately: see requirements-models.txt
 
 # ── Vision-language image embeddings (BioViL-T) ──────────────────────────────
 hi-ml-multimodal         # Microsoft health_multimodal — BioViL/BioViL-T (Boecking et al.)

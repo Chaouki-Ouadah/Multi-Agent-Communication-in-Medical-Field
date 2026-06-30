@@ -13,8 +13,11 @@ argumentation/framework.py; NIH slice via kagglehub (data/chestxray14, gitignore
 CUDA torch cu128. PR discipline: raise PR + STOP, user merges (see [[pr-merge-discipline]]).
 
 ## Known follow-up
-- **numpy 1↔2 split**: scispaCy/thinc want <2; transformers/scipy want ≥2 (env on 2.5). Card 5
-  (Report Agent / scispaCy) must upgrade spaCy/thinc to numpy-2 versions first.
+- **numpy split RESOLVED (Card 5):** env coheres on numpy 1.26.4 (scispaCy 0.6.2 / spaCy 3.7.5 /
+  scipy 1.17.1 / transformers 5.x / torch cu128 all import; all 5 live tests pass). scispaCy model
+  pins spaCy 3.7.5 — don't force 3.8.
+- **graphrag (Card 10) deferred conflict:** wants spacy~=3.8 + numpy~=2.1 — unsatisfiable with the
+  scispaCy set. Resolve when GraphRAG lands (likely isolate or drop the strict pin).
 
 ## Open threads
 - Open implementation decisions flagged in cards.md (attack threshold, convergence def, confidence
