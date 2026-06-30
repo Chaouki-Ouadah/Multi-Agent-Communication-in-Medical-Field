@@ -64,6 +64,9 @@ Read every card, before planning:
 3. `.claude/knowledge-base.md` — learned hard rules ([Source:]-cited).
 4. `docs/plans/cards.md` + `docs/plans/build-order.md` — the card backlog + build order.
 5. `IMPLEMENTATION_CONTEXT.md` — single source of truth for what to build.
+6. **`Dessertation Doc/Dissertation_Final_v6.pdf`** — the authoritative dissertation. Consult it
+   (Read tool, PDF) whenever a card touches design/methodology/RQ decisions; treat it as the source
+   of intent and flag any divergence from IMPLEMENTATION_CONTEXT to the user.
 
 ### medargue hard rules (non-negotiable)
 - **One card = one branch = one PR.** Do exactly ONE card at a time. Never batch multiple cards
