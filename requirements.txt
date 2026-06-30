@@ -13,7 +13,13 @@ neo4j
 # ── NLP / NER ───────────────────────────────────────────────────────────────
 scispacy
 spacy
+sentencepiece            # tokenizer backend for medical LLMs
 # scispaCy model installed separately (large): see requirements-models.txt
+
+# ── Vision-language image embeddings (BioViL-T) ──────────────────────────────
+hi-ml-multimodal         # Microsoft health_multimodal — BioViL/BioViL-T (Boecking et al.)
+# NOTE: install CUDA torch for GPU (RTX 5070 / Blackwell):
+#   pip install --index-url https://download.pytorch.org/whl/cu128 torch torchvision
 
 # ── ML / vision-language / embeddings ───────────────────────────────────────
 transformers

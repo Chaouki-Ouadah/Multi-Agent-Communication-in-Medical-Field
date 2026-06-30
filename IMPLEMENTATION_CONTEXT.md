@@ -124,8 +124,8 @@ modality-agnostic and extensible (add a modality = add an agent, no symbolic-lay
 |-------|------|------|
 | Orchestration | LangGraph v1.0+ | debate state machine, ≤5 rounds |
 | Text LLM | **Meditron-8B** (4-bit, Ollama) | Report / Clinical / Supervisor; baseline Llama-3.1-8B |
-| VLM | **LLaVA-Med 7B** (4-bit) | Vision Agent VQA |
-| Image embeddings | **BioViL** | CXR-specific; CLIP Image RAG |
+| VLM | **LLaVA-Med 7B** (4-bit Q4_K_M, **Ollama**) | Vision Agent VQA — `rohithbojja/llava-med-v1.5` |
+| Image embeddings | **BioViL-T** (`hi-ml-multimodal`) | CXR-specific; CLIP Image RAG |
 | NER | scispaCy `en_core_sci_lg` | report findings |
 | Vector store | ChromaDB | CLIP Image RAG + text vector RAG |
 | Graph RAG | Microsoft GraphRAG + Neo4j | UMLS / SNOMED-CT / ICD-10 / PrimeKG + guidelines |
