@@ -76,6 +76,9 @@ Read every card, before planning:
 - **One card = one branch = one PR.** Do exactly ONE card at a time. Never batch multiple cards
   into a branch/PR, never split one card across PRs. Fresh `feature/<card>` from `main` → single PR
   to `main` → branch deleted after merge. Finish (merge) the current card before starting the next.
+- **NEVER merge or arm auto-merge.** Raise the PR and STOP. The USER reviews, confirms all CI checks
+  are green, and merges. Do not run `gh pr merge`, do not `--auto`. After the user confirms the merge,
+  do Phase 11 cleanup. (User rule, 2026-06-30.)
 - **Research prototype, NOT clinical advice.** Every model-facing output (explanation,
   recommendation, UI panel) carries a "not clinical advice" label. [Source: IMPLEMENTATION_CONTEXT §10]
 - **No real patient data** in the surrogate track. MIMIC/UCI only after PhysioNet + CITI. Never
@@ -229,12 +232,14 @@ EOF
 )"
   ```
 - **Post-PR block** + one-line `> **Shipped:** <plain-English>` recap.
+- **STOP here.** Do NOT merge. Hand off to the user with the PR link; they verify all checks green
+  and merge. Wait for their confirmation before Phase 11.
 
 ### Phase 10 — Manual verify
 Run the app: `conda run -n medargue streamlit run ui/app.py`. Walk the card's Verification list.
 User clicks through; Claude waits + diagnoses failures.
 
-### Phase 11 — Post-merge cleanup + close loop
+### Phase 11 — Post-merge cleanup + close loop (ONLY after the user merges)
 ```bash
 git checkout main && git pull origin main --ff-only
 git branch -d feature/<kebab>
@@ -263,7 +268,8 @@ nominate in `.claude/knowledge-nominations.md`.
 | ruff + ruff-format + mypy + pytest green locally | before push |
 | ≥1 live Playwright E2E scenario | UI card, Phase 6 |
 | Synced with latest origin/main before PR | Phase 9 |
-| PR base = main; branch deleted after merge | Phase 9 / 11 |
+| PR raised, then STOPPED — user verifies green + merges (never auto/self-merge) | Phase 9 |
+| PR base = main; branch deleted after user merges | Phase 9 / 11 |
 
 ---
 
