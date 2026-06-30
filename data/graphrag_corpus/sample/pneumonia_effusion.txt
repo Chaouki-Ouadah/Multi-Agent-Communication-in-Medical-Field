@@ -1,0 +1,15 @@
+Pneumonia, Pleural Effusion, and Bilateral Opacities — Clinical Notes (sample, open text)
+
+Pneumonia presents on chest radiography as airspace consolidation, often lobar, sometimes with air
+bronchograms. An elevated white blood cell count (leukocytosis) supports an infective process, whereas
+a normal white cell count makes bacterial pneumonia less likely. Atelectasis (collapse) can mimic
+consolidation but typically shows volume loss and fissural displacement.
+
+Bilateral opacities have a broad differential. In a patient with elevated BNP and bilateral opacities,
+cardiogenic pulmonary oedema is favoured; with fever and leukocytosis, multifocal pneumonia or acute
+respiratory distress is considered. Pleural effusion appears as blunting of the costophrenic angle and
+a meniscus; large effusions cause mediastinal shift. Pneumothorax, by contrast, shows a visible
+visceral pleural line with absent lung markings peripherally and can be life-threatening under tension.
+
+These distinctions matter for management: antibiotics for pneumonia, diuresis for cardiogenic oedema,
+and drainage for large effusions or tension pneumothorax.

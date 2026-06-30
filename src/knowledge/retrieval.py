@@ -197,9 +197,9 @@ def build_retriever(
             raise ValueError("config A (VECTOR) needs a text_retriever")
         return text_retriever
     if config is RetrievalConfig.GRAPH:
-        raise NotImplementedError(
-            "GraphRAG (config B) — Microsoft GraphRAG + Neo4j lands in Card 10b"
-        )
+        if graph_retriever is None:
+            raise ValueError("config B (GRAPH) needs a graph_retriever (Neo4j and/or GraphRAG)")
+        return graph_retriever
     if config is RetrievalConfig.HYBRID:
         members = [r for r in (text_retriever, image_retriever, graph_retriever) if r is not None]
         if not members:
