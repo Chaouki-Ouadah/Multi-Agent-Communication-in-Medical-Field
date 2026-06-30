@@ -4,14 +4,13 @@
 > Full card detail: `docs/plans/cards.md`.
 
 ## Today
-- Card 4 — Vision Agent (BioViL + CLIP Image RAG + LLaVA-Med)
+- Card 5 — Report Agent (sections + scispaCy NER + Meditron) — upgrade spaCy/thinc to numpy-2 first
 
 ## This Week
-- Card 5 — Report Agent (sections + scispaCy NER + Meditron) — needs numpy-2 spaCy stack first
 - Card 6 — Clinical Agent (EHR serialisation + Meditron)
+- Card 7 — LangGraph debate + Supervisor (≤5 rounds)
 
 ## Backlog (build order — docs/plans/cards.md)
-- Card 7 — LangGraph debate + Supervisor (≤5 rounds)
 - Card 8 — Dung's AAF + preferred-extension resolver
 - Card 9 — Walton 7 schemes + attacks + explanation
 - Card 10 — GraphRAG + Neo4j KG; SRQ2 configs A/B/C
@@ -30,3 +29,4 @@
 - Card 1 — multimodal loader + Case + CheXpert-14 + surrogate loaders — PR #8 (2026-06-30)
 - Card 2 — modality partitioner + Case views (OIDP) — PR #9 (2026-06-30)
 - Card 3 — real model clients (Meditron / LLaVA-Med 4-bit / BioViL) — PR #10 (2026-06-30)
+- Card 4 — Vision Agent (BioViL CLIP Image RAG + LLaVA-Med) — PR #11 (2026-06-30)

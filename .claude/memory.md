@@ -4,12 +4,13 @@
 > Durable facts live in the auto-memory store; this file is the active-work scratch.
 
 ## Now
-Realigned to dissertation v6 (#7). Merged: Card 1 loaders (#8), Card 2 modality partitioner (#9),
-**Card 3 real model clients (#10)**. Next: **Card 4 — Vision Agent (BioViL + CLIP Image RAG + LLaVA-Med)**.
-Decisions locked: per-modality Cases; CheXpert policy configurable (CheXpert-paper default); OIDP via
-frozen views; **clients real (no mocks); LLaVA-Med 4-bit via Ollama (rohithbojja/llava-med-v1.5),
-BioViL via hi-ml-multimodal; env on numpy 2 + CUDA torch cu128.** PR discipline: raise PR + STOP,
-user merges (see [[pr-merge-discipline]]).
+Merged: Cards 1–4 (#8 loaders, #9 partitioner, #10 model clients, **#11 Vision Agent**).
+Next: **Card 5 — Report Agent (section extraction + scispaCy NER + Meditron)**.
+Decisions locked: per-modality Cases; CheXpert policy configurable; OIDP frozen views; clients real
+(no mocks); LLaVA-Med 4-bit via Ollama `rohithbojja/llava-med-v1.5`; BioViL via hi-ml-multimodal;
+CLIP Image RAG = BioViL→ChromaDB (per-instance collection); shared `Argument` in
+argumentation/framework.py; NIH slice via kagglehub (data/chestxray14, gitignored). env: numpy 2 +
+CUDA torch cu128. PR discipline: raise PR + STOP, user merges (see [[pr-merge-discipline]]).
 
 ## Known follow-up
 - **numpy 1↔2 split**: scispaCy/thinc want <2; transformers/scipy want ≥2 (env on 2.5). Card 5
