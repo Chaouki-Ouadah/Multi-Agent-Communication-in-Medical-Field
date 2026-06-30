@@ -113,6 +113,10 @@ green → pushed. Then swap loaders for real MIMIC.
 - **AC:** [ ] ≤5 rounds; [ ] convergence rule; [ ] state accumulates args+attacks; [ ] supervisor
   raw-data-blind.
 - **Open decisions:** convergence definition + agent ordering — flag.
+- **Folded-in fix (from Card 5 demo):** Report Agent (and Vision) LLM output parsing wraps the
+  model's echoed *prompt* into junk "Sign" arguments (Meditron echoes the prompt). When wiring agent
+  outputs into the debate, harden `_split_findings`/prompts: suppress echo + strip prompt-echoed
+  lines so only genuine findings become Arguments. Add a real-output (`llm`) regression test.
 
 ## Card 8 — Dung's AAF + resolver
 - **Branch:** `feature/aaf`
