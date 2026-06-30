@@ -8,7 +8,8 @@ langchain-ollama
 # ── Knowledge / RAG ─────────────────────────────────────────────────────────
 # graphrag deferred to Card 10: it pins numpy~=2.1, which conflicts with the scispaCy-driven
 # numpy<2 set (Card 5). Re-add (isolated / version-resolved) when GraphRAG lands.
-chromadb
+chromadb                 # PYSEC-2026-311 (server-mode pre-auth RCE) ignored in pip-audit: we use
+                         # the embedded EphemeralClient, never the HTTP server; no patched release yet.
 neo4j
 
 # ── NLP / NER ───────────────────────────────────────────────────────────────
