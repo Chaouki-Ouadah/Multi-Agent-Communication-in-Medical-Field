@@ -4,10 +4,10 @@
 > Full card detail: `docs/plans/cards.md`.
 
 ## Today
-- Card 13 — Streamlit UI (CXR + modality panels + arg tree)
+- Card 14 — model-selection benchmark harness
 
 ## This Week
-- Card 14 — model-selection benchmark harness
+- Card 15 — swap surrogate → real MIMIC (post credentialing) [blocked]
 
 ## Backlog (build order — docs/plans/cards.md)
 - Card 13 — Streamlit UI (CXR + modality panels + arg tree)
@@ -33,3 +33,4 @@
 - Card 10b — GraphRAG (isolated venv) + Neo4j/PrimeKG; SRQ2 B/C live — PR #18 (2026-07-01)
 - Card 11 — six-dimension evaluation metrics (F1/AUROC/ECE/κ + transparency/explainability) — PR #19 (2026-07-01)
 - Card 12 — baselines B1–B5 + ablations A1–A7 + Wilcoxon harness — PR #20 (2026-07-01)
+- Card 13 — Streamlit explainability dashboard + Playwright E2E (demo + live) — PR #21 (2026-07-01)

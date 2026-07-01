@@ -23,10 +23,17 @@ rouge_l, explanation_completeness, argumentation_coverage, cooccurrence_accuracy
 cross_modal_discovery_rate, unique_evidence_contribution, + DebateState process-transparency
 (debate_depth/attack_rate/convergence_quality/argument_traceability). `METRIC_REGISTRY` for Card 12.
 DEFERRED to Card 12: D5 robustness (dropout/paraphrase runs) + BLEU + LLM-faithfulness.
-Next: **Card 12 — baselines B1–B5 + ablations A1–A7** (§4.6.3/4.6.4) — HEAVY. Wires metrics + retrieval
-+ debate into an eval harness over surrogate cases; also FIRST card that may need AAF/resolver/
-explanation/retrievers wired into pipeline/graph.py (currently pure modules, DebateState.extension/
-explanation still empty). B1=GPT-4o (API, needs OPENAI key), B5=full system. Wilcoxon signed-rank.
+**Card 12 DONE (#20):** `evaluation/baselines.py` (SystemConfig + BASELINES B1-B5 + ABLATIONS A1-A7 +
+`run_condition` composing debate/AAF/explanation/retrieval per config — NOT via graph.py, eval-layer
+only) + `analysis.py` (aggregate_results / wilcoxon_compare / ablation_delta). B1=Ollama qwen2.5:14b
+(GPT-4o deferred — configurable llm_model); B4=external→NotImplementedError. Retrieval is harness-level
+(per-agent injection = later). `_extract_labels`→FOCUS_5 negation-aware. Live B5 on Ollama passes.
+NOTE: pipeline/graph.py STILL not wired with AAF/explanation/retrieval (DebateState.extension/
+explanation empty) — eval layer composes them instead; Card 13 UI will likely call run_condition(B5).
+Next: **Card 13 — Streamlit UI (CXR + 3 modality panels + debate/arg-tree + recommendation +
+confidence + disclaimer)** + Playwright E2E. THE demo card (supervisor walkthrough). Make it
+demo-oriented: bundled sample case (incl. a CXR image) for one-click end-to-end. Follow
+docs/design/ui-spec.md. Disclaimer on every output panel.
 Decisions locked: per-modality Cases; CheXpert policy configurable; OIDP frozen views; clients real
 (no mocks); LLaVA-Med 4-bit via Ollama `rohithbojja/llava-med-v1.5`; BioViL via hi-ml-multimodal;
 CLIP Image RAG = BioViL→ChromaDB (per-instance collection); shared `Argument` in
