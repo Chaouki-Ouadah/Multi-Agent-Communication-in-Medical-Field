@@ -10,9 +10,16 @@ model needed, drives the Playwright E2E); a sidebar toggle runs **live** on Olla
 from __future__ import annotations
 
 import os
+import sys
+from pathlib import Path
 from typing import Any
 
 import streamlit as st
+
+# `streamlit run ui/app.py` puts ui/ (not the repo root) on sys.path — ensure the repo root is
+# importable so `src.*` and `ui.*` resolve regardless of how the app is launched.
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
 from ui.components import render
 from ui.sample_data import demo_case, demo_output
 
